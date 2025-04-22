@@ -2,75 +2,308 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
-  <title>falch.me</title>
-  <style>
-    html,
-    body {
-      margin: 0;
-      padding: 0;
-      background: black;
-      overflow: hidden;
-      height: 100%;
-    }
+    <meta charset="UTF-8" />
+    <title>falch.me - Galaxian</title>
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            background: black;
+            overflow: hidden;
+            height: 100%;
+        }
 
-    canvas {
-      display: block;
-    }
-  </style>
+        canvas {
+            display: block;
+        }
+    </style>
 </head>
 
 <body>
-  <canvas id="scene"></canvas>
-  <script>
-    const canvas = document.getElementById('scene');
-    const ctx = canvas.getContext('2d');
+    <canvas id="scene"></canvas>
+    <script>
+        const canvas = document.getElementById('scene');
+        const ctx = canvas.getContext('2d');
+        let w, h;
 
-    let w, h, particles = [];
-    const numParticles = 250;
+        const spriteSheet = new Image();
+        spriteSheet.src = 'sprites.png';
 
-    function generateParticles() {
-      particles = [];
-      for (let i = 0; i < numParticles; i++) {
-        const rand = Math.random();
-        particles.push({
-          x: Math.random() * w,
-          y: Math.random() * h,
-          r: rand < 0.7 ? Math.random() * 0.6 + 0.3 : Math.random() * 2 + 1,
-          dx: (Math.random() - 0.5) * 0.4,
-          dy: (Math.random() - 0.5) * 0.4
+        const player = {
+            x: 100,
+            y: 0,
+            width: 64,
+            height: 64,
+            speed: 4
+        };
+
+        const playerSprite = { x: 1, y: 70, w: 16, h: 16 };
+        const keys = {};
+        const bullets = [];
+
+        let particles = [];
+        const numParticles = 250;
+
+        function generateParticles() {
+            particles = [];
+            for (let i = 0; i < numParticles; i++) {
+                const rand = Math.random();
+                particles.push({
+                    x: Math.random() * w,
+                    y: Math.random() * h,
+                    r: rand < 0.7 ? Math.random() * 0.6 + 0.3 : Math.random() * 2 + 1,
+                    dx: (Math.random() - 0.5) * 0.4,
+                    dy: (Math.random() - 0.5) * 0.4
+                });
+            }
+        }
+
+        const enemySprites = {
+            red: {
+                idle: [
+                    { x: 1, y: 1, w: 16, h: 16 },
+                    { x: 18, y: 1, w: 16, h: 16 },
+                    { x: 35, y: 1, w: 16, h: 16 },
+                    { x: 52, y: 1, w: 16, h: 16 }
+                ],
+                explode: [
+                    { x: 61, y: 70, w: 16, h: 16 },
+                    { x: 78, y: 70, w: 16, h: 16 },
+                    { x: 95, y: 70, w: 16, h: 16 },
+                    { x: 112, y: 70, w: 16, h: 16 }
+                ]
+            },
+
+            blue: {
+                idle: [
+                    { x: 1, y: 35, w: 16, h: 16 },
+                    { x: 18, y: 35, w: 16, h: 16 },
+                    { x: 35, y: 35, w: 16, h: 16 },
+                    { x: 52, y: 35, w: 16, h: 16 }
+                ],
+                explode: [
+                    { x: 61, y: 70, w: 16, h: 16 },
+                    { x: 78, y: 70, w: 16, h: 16 },
+                    { x: 95, y: 70, w: 16, h: 16 },
+                    { x: 112, y: 70, w: 16, h: 16 }
+                ]
+            },
+
+            purple: {
+                idle: [
+                    { x: 1, y: 18, w: 16, h: 16 },
+                    { x: 18, y: 18, w: 16, h: 16 },
+                    { x: 35, y: 18, w: 16, h: 16 },
+                    { x: 52, y: 18, w: 16, h: 16 }
+                ],
+                explode: [
+                    { x: 61, y: 70, w: 16, h: 16 },
+                    { x: 78, y: 70, w: 16, h: 16 },
+                    { x: 95, y: 70, w: 16, h: 16 },
+                    { x: 112, y: 70, w: 16, h: 16 }
+                ]
+            }
+        };
+
+        const enemyGrid = [];
+        const spacing = 64;
+        const enemySize = 64;
+
+        let tick = 0;
+        let enemyOffsetX = 0;
+        let enemyDir = 1;
+
+        function generateEnemies() {
+            enemyGrid.length = 0;
+            const totalWidth = 10 * spacing;
+            const startX = (w - totalWidth) / 2;
+
+            for (let col = 2; col < 8; col++) {
+                enemyGrid.push({
+                    type: 'red',
+                    x: startX + col * spacing,
+                    y: 100 + 0 * spacing,
+                    state: 'idle',
+                    frame: 0
+                });
+            }
+
+            for (let col = 1; col < 9; col++) {
+                enemyGrid.push({
+                    type: 'purple',
+                    x: startX + col * spacing,
+                    y: 100 + 1 * spacing,
+                    state: 'idle',
+                    frame: 0
+                });
+            }
+
+            for (let row = 2; row < 5; row++) {
+                for (let col = 0; col < 10; col++) {
+                    enemyGrid.push({
+                        type: 'blue',
+                        x: startX + col * spacing,
+                        y: 100 + row * spacing,
+                        state: 'idle',
+                        frame: 0
+                    });
+                }
+            }
+        }
+
+        function resize() {
+            w = canvas.width = window.innerWidth;
+            h = canvas.height = window.innerHeight;
+            player.y = h - player.height - 10;
+            generateParticles();
+            generateEnemies();
+            spawnTestExplosion(w / 2 - 32, h / 2 - 32, 'red');
+            spawnTestExplosion(w / 2 + 32, h / 2 - 32, 'blue');
+            spawnTestExplosion(w / 2, h / 2 + 32, 'purple');
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+
+        window.addEventListener('keydown', e => keys[e.code] = true);
+        window.addEventListener('keyup', e => {
+            keys[e.code] = false;
+            if (e.code === 'Space') {
+                const bulletX = player.x + player.width / 2 - 2;
+                const bulletY = player.y - 10;
+                bullets.push({ x: bulletX, y: bulletY, speed: 5 });
+            }
         });
-      }
-    }
 
-    function resize() {
-      w = canvas.width = window.innerWidth;
-      h = canvas.height = window.innerHeight;
-      generateParticles();
-    }
+        function updateEnemies() {
+            enemyOffsetX += enemyDir;
+            if (enemyOffsetX > 40 || enemyOffsetX < -40) {
+                enemyDir *= -1;
+            }
+        }
 
-    window.addEventListener('resize', resize);
-    resize();
+        function drawEnemies() {
+            for (let i = enemyGrid.length - 1; i >= 0; i--) {
+                const e = enemyGrid[i];
+                const sprites = enemySprites[e.type][e.state];
 
-    function animate() {
-      ctx.clearRect(0, 0, w, h);
-      for (let p of particles) {
-        p.x += p.dx;
-        p.y += p.dy;
+                if (!sprites || sprites.length === 0) continue;
 
-        if (p.x < 0 || p.x > w) p.dx *= -1;
-        if (p.y < 0 || p.y > h) p.dy *= -1;
+                const sprite = sprites[Math.floor(e.frame)] || sprites[sprites.length - 1];
 
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = 'white';
-        ctx.fill();
-      }
-      requestAnimationFrame(animate);
-    }
+                ctx.drawImage(
+                    spriteSheet,
+                    sprite.x, sprite.y, sprite.w, sprite.h,
+                    e.x + enemyOffsetX, e.y, enemySize, enemySize
+                );
 
-    animate();
-  </script>
+                if (e.state === 'idle') {
+                    e.frame = (e.frame + 0.2) % sprites.length;
+                } else if (e.state === 'explode') {
+                    e.frame += 0.4;
+                    if (e.frame >= sprites.length) {
+                        enemyGrid.splice(i, 1);
+                    }
+                }
+            }
+        }
+
+        function spawnTestExplosion(x, y, type = 'red') {
+            enemyGrid.push({
+                type,
+                x,
+                y,
+                state: 'explode',
+                frame: 0
+            });
+        }
+
+        function drawParticles() {
+            for (let p of particles) {
+                p.x += p.dx;
+                p.y += p.dy;
+                if (p.x < 0 || p.x > w) p.dx *= -1;
+                if (p.y < 0 || p.y > h) p.dy *= -1;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                ctx.fillStyle = 'white';
+                ctx.fill();
+            }
+        }
+
+        function drawPlayer() {
+            ctx.drawImage(
+                spriteSheet,
+                playerSprite.x, playerSprite.y, playerSprite.w, playerSprite.h,
+                player.x, player.y, player.width, player.height
+            );
+        }
+
+        function drawBullets() {
+            ctx.fillStyle = 'white';
+            for (let i = bullets.length - 1; i >= 0; i--) {
+                bullets[i].y -= bullets[i].speed;
+                if (bullets[i].y < 0) {
+                    bullets.splice(i, 1);
+                } else {
+                    ctx.fillRect(bullets[i].x, bullets[i].y, 4, 20);
+                }
+            }
+        }
+
+        function updatePlayer() {
+            if (keys['ArrowLeft']) player.x -= player.speed;
+            if (keys['ArrowRight']) player.x += player.speed;
+            player.x = Math.max(0, Math.min(player.x, w - player.width));
+        }
+
+        function isColliding(a, b) {
+            return (
+                a.x < b.x + enemySize &&
+                a.x + 4 > b.x &&           // 4 = bullet width
+                a.y < b.y + enemySize &&
+                a.y + 20 > b.y             // 20 = bullet height
+            );
+        }
+
+        function checkCollisions() {
+            for (let i = bullets.length - 1; i >= 0; i--) {
+                const bullet = bullets[i];
+                for (let j = enemyGrid.length - 1; j >= 0; j--) {
+                    const enemy = enemyGrid[j];
+
+                    if (enemy.state !== 'idle') continue;
+
+                    const enemyX = enemy.x + enemyOffsetX;
+                    const enemyY = enemy.y;
+
+                    if (isColliding({ x: bullet.x, y: bullet.y }, { x: enemyX, y: enemyY })) {
+                        bullets.splice(i, 1); 
+                        enemy.state = 'explode'; 
+                        enemy.frame = 0;
+                        break;
+                    }
+                }
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, w, h);
+            tick++;
+
+            drawParticles();
+            updatePlayer();
+            updateEnemies();
+            drawPlayer();
+            drawEnemies();
+            drawBullets();
+            checkCollisions();
+            requestAnimationFrame(animate);
+        }
+
+        spriteSheet.onload = animate;
+    </script>
 </body>
 
 </html>
