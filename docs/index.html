@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>falch.me</title>
+  <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      background: black;
+      overflow: hidden;
+      height: 100%;
+    }
+
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="scene"></canvas>
+  <script>
+    const canvas = document.getElementById('scene');
+    const ctx = canvas.getContext('2d');
+
+    let w, h, particles = [];
+    const numParticles = 250;
+
+    function generateParticles() {
+      particles = [];
+      for (let i = 0; i < numParticles; i++) {
+        const rand = Math.random();
+        particles.push({
+          x: Math.random() * w,
+          y: Math.random() * h,
+          r: rand < 0.7 ? Math.random() * 0.6 + 0.3 : Math.random() * 2 + 1,
+          dx: (Math.random() - 0.5) * 0.4,
+          dy: (Math.random() - 0.5) * 0.4
+        });
+      }
+    }
+
+    function resize() {
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = window.innerHeight;
+      generateParticles();
+    }
+
+    window.addEventListener('resize', resize);
+    resize();
+
+    function animate() {
+      ctx.clearRect(0, 0, w, h);
+      for (let p of particles) {
+        p.x += p.dx;
+        p.y += p.dy;
+
+        if (p.x < 0 || p.x > w) p.dx *= -1;
+        if (p.y < 0 || p.y > h) p.dy *= -1;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'white';
+        ctx.fill();
+      }
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+  </script>
+</body>
+
+</html>
