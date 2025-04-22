@@ -1,8 +1,6 @@
 ---
 layout: default
-title: Velkommen
+title: Hjem
 ---
 
-# Hei
-
-Dette er forsiden skrevet i Markdown!
+# Velkommen til falch.me
