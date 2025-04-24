@@ -461,7 +461,6 @@
       h = canvas.height = window.innerHeight;
       player.y = h - player.height - 100;
       generateParticles();
-      flyInEnemies();
     }
 
     function startNextWave() {
@@ -484,17 +483,21 @@
     }
 
     let gameStarted = false;
+    let enemiesInitialized = false;
 
     function startGame() {
       if (gameStarted) return;
       gameStarted = true;
-
-      resize();
-      flyInEnemies();
+      if (!enemiesInitialized) {
+        flyInEnemies();
+        enemiesInitialized = true;
+      }
       animate();
     }
 
     function flyInEnemies() {
+      if (enemiesInitialized) return;
+      enemiesInitialized = true;
       enemyGrid.length = 0;
       formation = [];
       const usedPositions = new Set();
@@ -536,8 +539,6 @@
 
       setTimeout(() => { enemiesCanAttack = true; }, 2500);
     }
-
-    spriteSheet.onload = startGame;
 
     window.addEventListener('resize', resize);
 
@@ -733,6 +734,15 @@
         }
       }
     }
+
+    window.addEventListener('resize', resize);
+
+    function initialize() {
+      resize();
+      spriteSheet.onload = startGame;
+    }
+
+    initialize();
   </script>
 </body>
 </html>
