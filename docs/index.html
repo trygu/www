@@ -334,7 +334,7 @@
         const b = bullets[i];
         if (!b.fired) {
           if (player.state !== 'alive') {
-            bullets.splice(i, 1); // Remove bullet if player is not alive
+            bullets.splice(i, 1);
             continue;
           }
           b.x = player.x + player.width / 2 - 8;
@@ -365,7 +365,7 @@
           player.frame += 0.2;
           if (player.frame >= playerExplosionSprites.length) {
             player.state = 'dead';
-            setTimeout(() => revivePlayer(), 2000); // Revive player after 2 seconds
+            setTimeout(() => revivePlayer(), 2000);
           }
         }
       }
@@ -405,8 +405,10 @@
       drawPlayer();
       drawEnemies();
       drawBullets();
+      drawEnemyBullets();
       checkCollisions();
       checkAllEnemiesShot();
+      maybeFireEnemyBullet();
       requestAnimationFrame(animate);
     }
 
@@ -619,6 +621,79 @@
     });
 
     window.addEventListener('resize', resize);
+
+    const MAX_ENEMY_BULLETS = 3;
+    const ENEMY_SHOOT_PROBABILITY = 0.01;
+    const enemyBullets = [];
+
+    function computeEnemyShootProbability(wave) {
+      return Math.min(0.01 + wave * 0.002, 0.05);
+    }
+
+    let shootingDelay = 300;
+
+    function maybeFireEnemyBullet() {
+      if (tick < shootingDelay) return;
+
+      if (enemyBullets.length >= MAX_ENEMY_BULLETS) return;
+
+      const shootProbability = computeEnemyShootProbability(currentWave);
+
+      for (const enemy of enemyGrid) {
+        if (enemy.state !== 'idle' && enemy.state !== 'fly') continue;
+
+        const hasClearSight = !enemyGrid.some(
+          other =>
+            other !== enemy &&
+            other.x === enemy.x &&
+            other.y > enemy.y &&
+            other.state !== 'explode'
+        );
+
+        if (hasClearSight && Math.random() < shootProbability) {
+          enemyBullets.push(createEnemyBullet(enemy));
+          if (Math.random() < 0.5) break;
+        }
+      }
+    }
+
+    function createEnemyBullet(enemy) {
+      return {
+        x: enemy.x + enemySize / 2 - 2,
+        y: enemy.y + enemySize,
+        width: 4,
+        height: 10,
+        speed: 4,
+        color: 'red'
+      };
+    }
+
+    function drawEnemyBullets() {
+      ctx.fillStyle = 'red';
+      for (let i = enemyBullets.length - 1; i >= 0; i--) {
+        const bullet = enemyBullets[i];
+        bullet.y += bullet.speed;
+
+        ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+
+        if (bullet.y > h) {
+          enemyBullets.splice(i, 1);
+        }
+
+        if (
+          player.state === 'alive' &&
+          bullet.x < player.x + player.width &&
+          bullet.x + bullet.width > player.x &&
+          bullet.y < player.y + player.height &&
+          bullet.y + bullet.height > player.y
+        ) {
+          player.state = 'explode';
+          player.frame = 0;
+          bullets.length = 0;
+          enemyBullets.splice(i, 1);
+        }
+      }
+    }
   </script>
 </body>
 </html>
