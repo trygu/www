@@ -26,8 +26,15 @@
     const spriteSheet = new Image();
     spriteSheet.src = 'sprites.png';
 
-    const player = { x: 100, y: 0, width: 64, height: 64, speed: 4 };
+    const player = { x: 100, y: 50, width: 64, height: 64, speed: 4, state: 'alive', frame: 0 };
     const playerSprite = { x: 1, y: 69, w: 16, h: 17 };
+    const playerExplosionSprites = [
+      { x: 1, y: 87, w: 32, h: 32 },
+      { x: 34, y: 87, w: 32, h: 32 },
+      { x: 67, y: 87, w: 32, h: 32 },
+      { x: 100, y: 87, w: 32, h: 32 }
+    ];
+
     const keys = {};
     const bullets = [];
     const enemyGrid = [];
@@ -284,7 +291,7 @@
       ctx.restore();
     }
 
-    function checkCollisions() {
+    function checkBulletCollisions() {
       for (let i = bullets.length - 1; i >= 0; i--) {
         const b = bullets[i];
         for (let j = enemyGrid.length - 1; j >= 0; j--) {
@@ -300,11 +307,36 @@
       }
     }
 
+    function checkCollisions() {
+      checkBulletCollisions();
+
+      for (let i = enemyGrid.length - 1; i >= 0; i--) {
+        const e = enemyGrid[i];
+        if (e.state === 'explode') continue;
+        if (
+          player.state === 'alive' &&
+          player.x < e.x + enemySize &&
+          player.x + player.width > e.x &&
+          player.y < e.y + enemySize &&
+          player.y + player.height > e.y
+        ) {
+          player.state = 'explode';
+          player.frame = 0;
+          bullets.length = 0;
+          return;
+        }
+      }
+    }
+
     function drawBullets() {
       ctx.fillStyle = 'yellow';
       for (let i = bullets.length - 1; i >= 0; i--) {
         const b = bullets[i];
         if (!b.fired) {
+          if (player.state !== 'alive') {
+            bullets.splice(i, 1); // Remove bullet if player is not alive
+            continue;
+          }
           b.x = player.x + player.width / 2 - 8;
           b.y = player.y - 10;
           ctx.fillRect(b.x, b.y, 4, 10);
@@ -318,13 +350,32 @@
         }
       }
 
-      if (bullets.length === 0) {
+      if (bullets.length === 0 && player.state === 'alive') {
         ctx.fillRect(player.x + player.width / 2 - 8, player.y - 10, 4, 10);
       }
     }
 
     function drawPlayer() {
-      ctx.drawImage(spriteSheet, playerSprite.x, playerSprite.y, playerSprite.w, playerSprite.h, player.x, player.y, player.width, player.height);
+      if (player.state === 'alive') {
+        ctx.drawImage(spriteSheet, playerSprite.x, playerSprite.y, playerSprite.w, playerSprite.h, player.x, player.y, player.width, player.height);
+      } else if (player.state === 'explode') {
+        const sprite = playerExplosionSprites[Math.floor(player.frame)];
+        if (sprite) {
+          ctx.drawImage(spriteSheet, sprite.x, sprite.y, sprite.w, sprite.h, player.x, player.y, player.width, player.height);
+          player.frame += 0.2;
+          if (player.frame >= playerExplosionSprites.length) {
+            player.state = 'dead';
+            setTimeout(() => revivePlayer(), 2000); // Revive player after 2 seconds
+          }
+        }
+      }
+    }
+
+    function revivePlayer() {
+      player.state = 'alive';
+      player.frame = 0;
+      player.x = w / 2 - player.width / 2;
+      player.y = h - player.height - 100;
     }
 
     function drawParticles() {
@@ -376,7 +427,7 @@
     function resize() {
       w = canvas.width = window.innerWidth;
       h = canvas.height = window.innerHeight;
-      player.y = h - player.height - 10;
+      player.y = h - player.height - 100;
       generateParticles();
       flyInEnemies();
     }
@@ -458,7 +509,7 @@
       purple: 0.008,
       blue: 0.003
     };
-    const FLAGSHIP_ATTACK_PROBABILITY = 0.02; // Flagship attack probability
+    const FLAGSHIP_ATTACK_PROBABILITY = 0.02;
 
     function computeAttackProbability(wave) {
       return {
