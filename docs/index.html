@@ -27,7 +27,7 @@
     spriteSheet.src = 'sprites.png';
 
     const player = { x: 100, y: 0, width: 64, height: 64, speed: 4 };
-    const playerSprite = { x: 1, y: 70, w: 16, h: 16 };
+    const playerSprite = { x: 1, y: 69, w: 16, h: 17 };
     const keys = {};
     const bullets = [];
     const enemyGrid = [];
@@ -45,7 +45,7 @@
       red: generateSprites({ x: 1, y: 1 }, 4, 6),
       blue: generateSprites({ x: 1, y: 35 }, 4, 6),
       purple: generateSprites({ x: 1, y: 18 }, 4, 6),
-      yellow: {
+      flagship: {
         idle: [{ x: 1, y: 52, w: 16, h: 16 }],
         fly: Array.from({ length: 6 }, (_, i) => ({ x: 18 + i * 17, y: 52, w: 16, h: 16 })),
         explode: [61, 78, 95, 112].map(x => ({ x, y: 70, w: 16, h: 16 }))
@@ -121,14 +121,35 @@
       return { frame, flipH, flipV: false }; // Ensure no vertical flipping
     }
 
+    let currentWave = 1;
+    let attackDelay = computeAttackDelay(currentWave);
+    let maxSimultaneousAttackers = computeMaxAttackers(currentWave);
+    let activeAttackers = 0;
+
+    function computeAttackDelay(wave) {
+      return Math.max(2000 - wave * 100, 500); // Decrease delay with wave, minimum 500ms
+    }
+
+    function computeMaxAttackers(wave) {
+      return Math.min(1 + Math.floor(wave / 3), 3); // Increase attackers every 3 waves, max 3
+    }
+
+    function computeEnemySpeed(wave) {
+      return 2 + wave * 0.2; // Increase speed slightly with each wave
+    }
+
+    // Modify enemy speed dynamically
     function handleFlyState(e, index, sprites) {
       e.t += 0.02;
 
       e.prevX = e.x;
       e.prevY = e.y;
 
-      if (e.type === 'yellow') {
-        // Yellow enemy leads the attack with a swooping motion
+      const speed = computeEnemySpeed(currentWave); // Adjust speed based on wave
+      e.y += speed;
+
+      if (e.type === 'flagship') {
+        // Flagship leads the attack with a swooping motion
         const dir = e.direction === 'left' ? -1 : 1;
         e.x = e.originX + dir * Math.sin(e.t * e.flyFreq * Math.PI) * e.flyAmp;
         e.y += 1.5; // Move downward
@@ -140,12 +161,12 @@
 
         e.rotation = Math.atan2(e.y - e.prevY, e.x - e.prevX);
 
-        // Update the positions of the red escorts following this yellow enemy
-        const escorts = enemyGrid.filter(escort => escort.followYellow === e && escort.state === 'fly');
+        // Update the positions of the red escorts following this flagship
+        const escorts = enemyGrid.filter(escort => escort.followFlagship === e && escort.state === 'fly');
         escorts.forEach((escort, i) => {
           escort.x = e.x + (i === 0 ? -spacing : spacing); // Position escorts on either side
-          escort.y = e.y + 40; // Slightly below the yellow enemy
-          escort.rotation = e.rotation; // Match yellow's rotation
+          escort.y = e.y + 40; // Slightly below the flagship
+          escort.rotation = e.rotation; // Match flagship's rotation
         });
 
         if (e.y > h + enemySize) {
@@ -159,21 +180,22 @@
           escorts.forEach(escort => {
             escort.state = 'return';
             escort.wasAttacking = false;
-            escort.followYellow = null; // Remove reference to the yellow enemy
+            escort.followFlagship = null; // Remove reference to the flagship
             escort.y = -enemySize; // Start from above the screen
           });
+          return true;
         }
 
         return false;
       }
 
-      if (e.followYellow) {
-        // Dynamically follow the yellow enemy
-        const yellow = e.followYellow;
-        if (yellow && yellow.state === 'fly') {
-          e.x = yellow.x + e.offsetX; // Follow yellow's x position with offset
-          e.y = yellow.y + e.offsetY; // Follow yellow's y position with offset
-          e.rotation = yellow.rotation; // Match yellow's rotation
+      if (e.followFlagship) {
+        // Dynamically follow the flagship
+        const flagship = e.followFlagship;
+        if (flagship && flagship.state === 'fly') {
+          e.x = flagship.x + e.offsetX; // Follow flagship's x position with offset
+          e.y = flagship.y + e.offsetY; // Follow flagship's y position with offset
+          e.rotation = flagship.rotation; // Match flagship's rotation
         }
         return false;
       }
@@ -195,31 +217,34 @@
         e.y = -enemySize;
         e.x = e.originX;
         e.wasAttacking = false;
+        return true;
       }
 
       return false;
     }
 
+    function startReturn(e) {
+      e.state = 'return';
+      e.wasAttacking = false;
+    }
+
     function handleReturnState(e, sprites) {
       if (tick % 4 === 0) e.frame = (e.frame + 1) % sprites.length;
 
-      // Gradually move the enemy back to its formation position
+      // Interpolate back to formation position
       const dx = (e.originX - e.x) * 0.1;
       const dy = (e.originY - e.y) * 0.1;
       e.x += dx;
       e.y += dy;
 
-      // When the enemy is close to its formation position, snap to "idle"
+      // Snap to "idle" state when close to formation position
       if (Math.abs(dx) < 1 && Math.abs(dy) < 1) {
         e.x = e.originX;
         e.y = e.originY;
         e.state = 'idle';
         e.frame = 0;
-
-        // Reset rotation to face forward
-        e.rotation = 0;
+        e.rotation = 0; // Reset rotation
       }
-
       return false;
     }
 
@@ -360,12 +385,31 @@
       flyInEnemies();
     }
 
+    function startNextWave() {
+      currentWave++;
+      attackDelay = computeAttackDelay(currentWave);
+      maxSimultaneousAttackers = computeMaxSimultaneousAttackers(currentWave);
+      flagshipCooldown = 0; // Reset flagship cooldown for the new wave
+      flyInEnemies();
+    }
+
     function checkAllEnemiesShot() {
-      if (enemyGrid.length === 0) setTimeout(flyInEnemies, 1000);
+      if (enemyGrid.length === 0) setTimeout(startNextWave, 1000);
+    }
+
+    let gameStarted = false; // Flag to ensure the game starts only once
+
+    function startGame() {
+      if (gameStarted) return; // Prevent double initialization
+      gameStarted = true;
+
+      resize(); // Set up canvas dimensions and initial state
+      flyInEnemies(); // Initialize enemies
+      animate(); // Start the game loop
     }
 
     function flyInEnemies() {
-      enemyGrid.length = 0;
+      enemyGrid.length = 0; // Clear existing enemies
       formation = []; // Reset formation
       const usedPositions = new Set(); // Keep track of positions already used
       const startX = (w - spacing * 10) / 2;
@@ -374,7 +418,7 @@
       for (let col = 1; col < 9; col++) formation.push({ type: 'purple', x: startX + col * spacing, y: 164, dead: false });
       for (let row = 2; row < 5; row++)
         for (let col = 0; col < 10; col++) formation.push({ type: 'blue', x: startX + col * spacing, y: 100 + row * spacing, dead: false });
-      [3, 6].forEach(col => formation.push({ type: 'yellow', x: startX + col * spacing, y: 36, dead: false }));
+      [3, 6].forEach(col => formation.push({ type: 'flagship', x: startX + col * spacing, y: 36, dead: false }));
 
       formation.forEach((enemy, i) => {
         if (enemy.dead) return; // Skip dead enemies
@@ -406,40 +450,123 @@
       setTimeout(() => { enemiesCanAttack = true }, 2500);
     }
 
+    // Ensure the game starts only once when the sprite sheet is loaded
+    spriteSheet.onload = startGame;
+
+    // Prevent resize from restarting the game
+    window.addEventListener('resize', resize);
+
+    let flagshipCooldown = 0; // Cooldown-timer for flagships
+    const maxFlagshipAttacksPerWave = 3; // Maks antall flagship-angrep per bølge
+
+    const MAX_SIMULTANEOUS_ATTACKERS = 2;
+    const ATTACK_PROBABILITY = {
+      red: 0.02,    // 2% per frame
+      purple: 0.008, // 0.8% per frame
+      blue: 0.003   // 0.3% per frame
+    };
+    const FLAGSHIP_ATTACK_PROBABILITY = 0.005; // 0.5% per frame
+
+    function computeAttackProbability(wave) {
+      return {
+        red: 0.02 + wave * 0.002,    // Increase by 0.2% per wave
+        purple: 0.008 + wave * 0.001, // Increase by 0.1% per wave
+        blue: 0.003 + wave * 0.0005   // Increase by 0.05% per wave
+      };
+    }
+
+    function computeMaxSimultaneousAttackers(wave) {
+      return Math.min(2 + Math.floor(wave / 5), 5); // Increase by 1 every 5 waves, max 5
+    }
+
     setInterval(() => {
       if (!enemiesCanAttack) return;
 
-      // Find the first idle yellow enemy
-      const yellow = enemyGrid.find(e => e.type === 'yellow' && e.state === 'idle');
-      if (yellow) {
-        // Select the two closest idle red enemies to the yellow enemy
-        const escorts = enemyGrid
-          .filter(e => e.type === 'red' && e.state === 'idle')
-          .sort((a, b) => Math.abs(a.originX - yellow.originX) - Math.abs(b.originX - yellow.originX))
-          .slice(0, 2); // Pick the two closest red enemies
+      activeAttackers = enemyGrid.filter(e => e.state === 'fly').length;
 
-        if (escorts.length === 2) {
-          // Set the yellow enemy and its escorts to attack
-          [yellow, ...escorts].forEach((e, i) => {
-            e.state = 'fly';
-            e.t = 0;
-            e.frame = 0;
-            e.wasAttacking = true;
-            e.flyAmp = 150 + Math.random() * 100;
-            e.flyFreq = 1 + Math.random();
-            e.direction = yellow.originX < w / 2 ? 'left' : 'right';
+      const attackProbability = computeAttackProbability(currentWave);
+      const maxAttackers = computeMaxSimultaneousAttackers(currentWave);
 
-            // Mark escorts to follow this yellow enemy
-            if (i > 0) { // Only adjust escorts (not the yellow enemy)
-              e.followYellow = yellow; // Reference the yellow enemy they follow
-              e.offsetX = (i === 1 ? -spacing : spacing); // Position left or right of the yellow enemy
-              e.offsetY = 40; // Slightly below the yellow enemy
-            }
-          });
-          return; // Ensure only one yellow enemy attacks at a time
+      if (activeAttackers >= maxAttackers) return;
+
+      // Try triggering flagship attack
+      tryTriggerFlagshipAttack();
+
+      // Try triggering solo attacks for other enemies
+      tryTriggerSoloAttacks(attackProbability);
+    }, attackDelay);
+
+    function tryTriggerFlagshipAttack() {
+      const flagship = enemyGrid.find(e => e.type === 'flagship' && e.state === 'idle');
+      if (!flagship || Math.random() >= FLAGSHIP_ATTACK_PROBABILITY) return;
+
+      let escorts = enemyGrid
+        .filter(e => e.type === 'red' && e.state === 'idle')
+        .slice(0, 2); // Max 2 red escorts
+
+      if (escorts.length < 2) {
+        escorts = enemyGrid
+          .filter(e => e.type === 'purple' && e.state === 'idle')
+          .slice(0, 2); // Max 2 purple escorts
+      }
+
+      [flagship, ...escorts].forEach((e, i) => {
+        e.state = 'fly';
+        e.t = 0;
+        e.frame = 0;
+        e.wasAttacking = true;
+        e.flyAmp = 150 + Math.random() * 100;
+        e.flyFreq = 1 + Math.random();
+        e.direction = flagship.originX < w / 2 ? 'left' : 'right';
+
+        if (i > 0) {
+          e.followFlagship = flagship; // Reference the flagship they follow
+          e.offsetX = (i === 1 ? -spacing : spacing); // Position left or right of the flagship
+          e.offsetY = 40; // Slightly below the flagship
+        }
+      });
+
+      activeAttackers += escorts.length + 1; // Update active attackers
+    }
+
+    function tryTriggerSoloAttacks(attackProbability) {
+      const idleEnemies = pickIdleEnemiesInPriorityOrder();
+
+      for (const enemy of idleEnemies) {
+        if (enemy.type === 'red' && Math.random() < attackProbability.red) {
+          startSoloDive(enemy);
+          return;
+        }
+
+        if (enemy.type === 'purple' && Math.random() < attackProbability.purple) {
+          startSoloDive(enemy);
+          return;
+        }
+
+        if (enemy.type === 'blue' && Math.random() < attackProbability.blue) {
+          startSoloDive(enemy);
+          return;
         }
       }
-    }, 2000);
+    }
+
+    function pickIdleEnemiesInPriorityOrder() {
+      const red = enemyGrid.filter(e => e.type === 'red' && e.state === 'idle');
+      const purple = enemyGrid.filter(e => e.type === 'purple' && e.state === 'idle');
+      const blue = enemyGrid.filter(e => e.type === 'blue' && e.state === 'idle');
+      return [...red, ...purple, ...blue];
+    }
+
+    function startSoloDive(enemy) {
+      enemy.state = 'fly';
+      enemy.t = 0;
+      enemy.frame = 0;
+      enemy.direction = Math.random() < 0.5 ? 'left' : 'right';
+      enemy.flyFreq = 1 + Math.random();
+      enemy.wasAttacking = true;
+
+      activeAttackers++; // Update active attackers
+    }
 
     window.addEventListener('keydown', e => keys[e.code] = true);
     window.addEventListener('keyup', e => {
@@ -450,10 +577,6 @@
     });
 
     window.addEventListener('resize', resize);
-    spriteSheet.onload = () => {
-      resize();
-      animate();
-    };
   </script>
 </body>
 </html>
