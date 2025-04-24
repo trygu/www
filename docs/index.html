@@ -178,7 +178,7 @@
         return false;
       }
 
-      // ...existing code for other enemy types...
+      // Handle other enemy types
       const dir = e.direction === 'left' ? -1 : 1;
       e.x = e.originX + dir * Math.sin(e.t * e.flyFreq * Math.PI) * e.flyAmp;
       e.y += 2;
@@ -308,8 +308,8 @@
 
     function drawParticles() {
       for (let p of particles) {
-        p.y -= p.dy; // Flytt partiklene oppover
-        if (p.y < 0) p.y = h; // Resirkuler partikler som går utenfor toppen
+        p.y -= p.dy; // Move particles upward
+        if (p.y < 0) p.y = h; // Recycle particles that go off the top
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
         ctx.fillStyle = 'white';
@@ -346,8 +346,8 @@
           x: Math.random() * w,
           y: Math.random() * h,
           r: rand < 0.7 ? Math.random() * 0.6 + 0.3 : Math.random() * 2 + 1,
-          dx: 0, // Ingen horisontal bevegelse
-          dy: Math.random() * 0.5 + 0.2 // Vertikal bevegelse oppover
+          dx: 0, // No horizontal movement
+          dy: Math.random() * 0.5 + 0.2 // Vertical movement upward
         });
       }
     }
@@ -366,8 +366,8 @@
 
     function flyInEnemies() {
       enemyGrid.length = 0;
-      formation = []; // Tilbakestill formasjonen
-      const usedPositions = new Set(); // Holder oversikt over posisjoner som allerede er brukt
+      formation = []; // Reset formation
+      const usedPositions = new Set(); // Keep track of positions already used
       const startX = (w - spacing * 10) / 2;
 
       for (let col = 2; col < 8; col++) formation.push({ type: 'red', x: startX + col * spacing, y: 100, dead: false });
@@ -377,13 +377,13 @@
       [3, 6].forEach(col => formation.push({ type: 'yellow', x: startX + col * spacing, y: 36, dead: false }));
 
       formation.forEach((enemy, i) => {
-        if (enemy.dead) return; // Hopp over døde fiender
+        if (enemy.dead) return; // Skip dead enemies
         const key = `${enemy.x},${enemy.y}`;
-        if (usedPositions.has(key)) return; // Unngå dobbelspawning
+        if (usedPositions.has(key)) return; // Avoid double spawning
         usedPositions.add(key);
 
         setTimeout(() => {
-          // Sjekk om fienden allerede finnes i enemyGrid
+          // Check if the enemy already exists in enemyGrid
           if (!enemyGrid.some(e => e.originX === enemy.x && e.originY === enemy.y)) {
             enemyGrid.push({
               type: enemy.type,
@@ -432,7 +432,7 @@
             // Mark escorts to follow this yellow enemy
             if (i > 0) { // Only adjust escorts (not the yellow enemy)
               e.followYellow = yellow; // Reference the yellow enemy they follow
-              e.offsetX = (i === 1 ? -spacing : spacing); // Left or right of the yellow enemy
+              e.offsetX = (i === 1 ? -spacing : spacing); // Position left or right of the yellow enemy
               e.offsetY = 40; // Slightly below the yellow enemy
             }
           });
