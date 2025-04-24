@@ -443,7 +443,14 @@
     }
 
     function checkAllEnemiesShot() {
-      if (enemyGrid.length === 0) setTimeout(startNextWave, 1000);
+      if (enemyGrid.length === 0) {
+        setTimeout(() => {
+          currentWave++;
+          attackDelay = computeAttackDelay(currentWave);
+          maxSimultaneousAttackers = computeMaxAttackers(currentWave);
+          flyInEnemies(); // Spawn a new wave of enemies
+        }, 1000); // Wait 1 second before the next wave
+      }
     }
 
     let gameStarted = false;
@@ -463,12 +470,14 @@
       const usedPositions = new Set();
       const startX = (w - spacing * 10) / 2;
 
+      // Define enemy formation
       for (let col = 2; col < 8; col++) formation.push({ type: 'red', x: startX + col * spacing, y: 100, dead: false });
       for (let col = 1; col < 9; col++) formation.push({ type: 'purple', x: startX + col * spacing, y: 164, dead: false });
       for (let row = 2; row < 5; row++)
         for (let col = 0; col < 10; col++) formation.push({ type: 'blue', x: startX + col * spacing, y: 100 + row * spacing, dead: false });
       [3, 6].forEach(col => formation.push({ type: 'flagship', x: startX + col * spacing, y: 36, dead: false }));
 
+      // Spawn enemies with a delay
       formation.forEach((enemy, i) => {
         if (enemy.dead) return;
         const key = `${enemy.x},${enemy.y}`;
@@ -495,7 +504,7 @@
         }, i * 80);
       });
 
-      setTimeout(() => { enemiesCanAttack = true }, 2500);
+      setTimeout(() => { enemiesCanAttack = true; }, 2500);
     }
 
     spriteSheet.onload = startGame;
@@ -615,7 +624,7 @@
     window.addEventListener('keydown', e => keys[e.code] = true);
     window.addEventListener('keyup', e => {
       keys[e.code] = false;
-      if (e.code === 'Space' && bullets.length === 0) {
+      if (e.code === 'Space' && bullets.length === 0 && player.state === 'alive') {
         bullets.push({ x: player.x + player.width / 2 - 2, y: player.y - 10, speed: 5, fired: true });
       }
     });
