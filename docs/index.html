@@ -107,12 +107,9 @@
       let frame = 4;
       let flipH = false;
 
-      if (angle >= -Math.PI / 4 && angle < Math.PI / 4) {
-        frame = 4;
-      } else if (angle >= Math.PI / 4 && angle < (3 * Math.PI) / 4) {
+      if (angle >= Math.PI / 4 && angle < (3 * Math.PI) / 4) {
         frame = 6;
       } else if (angle >= (3 * Math.PI) / 4 || angle < -(3 * Math.PI) / 4) {
-        frame = 4;
         flipH = true;
       } else if (angle >= -(3 * Math.PI) / 4 && angle < -Math.PI / 4) {
         frame = 6;
@@ -395,12 +392,45 @@
       player.x = Math.max(0, Math.min(player.x, w - player.width));
     }
 
+    let falchText = {
+      x: Math.random() * w,
+      y: h + 50, 
+      speed: -0.5, 
+      visible: false,
+      timer: 0
+    };
+
+    function drawFalchText() {
+      if (!falchText.visible) {
+        falchText.timer++;
+        if (falchText.timer > 500 && Math.random() < 0.1) { 
+          falchText.visible = true;
+          falchText.x = Math.random() * w;
+          falchText.y = h + 50; 
+        }
+        return;
+      }
+
+      ctx.font = "23px Arial";
+      ctx.fillStyle = "rgba(200, 200, 200, 0.3)"; 
+      ctx.fillText("Falch Software", falchText.x, falchText.y);
+
+      falchText.y += falchText.speed;
+
+      if (falchText.y < -20) { 
+        falchText.visible = false;
+        falchText.timer = 0;
+      }
+    }
+
     function animate() {
       ctx.clearRect(0, 0, w, h);
       tick++;
       waveOffsetX += waveDir;
       if (waveOffsetX > 40 || waveOffsetX < -40) waveDir *= -1;
+
       drawParticles();
+      drawFalchText(); // Draw the "Falch Software" text
       updatePlayer();
       drawPlayer();
       drawEnemies();
