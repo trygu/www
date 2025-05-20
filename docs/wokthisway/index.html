@@ -10,9 +10,19 @@
             margin: 0;
             padding: 0;
             min-height: 100vh;
-            background: linear-gradient(135deg, #FAF0E6 0%, #fbeee0 100%);
+            background: #fbeee0;
             color: #333;
             line-height: 1.6;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: url('../images/wokthisway-notext.jpeg') center center/cover no-repeat;
+            opacity: 0.67;
+            filter: blur(13px) brightness(1.04) grayscale(0.08);
+            z-index: 0;
+            pointer-events: none;
         }
         .container {
             max-width: 600px;
@@ -33,6 +43,7 @@
             margin: 0 0 8px 0;
             font-size: 2.7rem;
             letter-spacing: 1px;
+            color: #2d1c0b;
         }
         header p {
             margin: 0;
@@ -45,6 +56,15 @@
             margin-bottom: 32px;
             background: linear-gradient(120deg, #fbeee0 0%, #fff 100%);
             box-shadow: 0 8px 32px rgba(0,0,0,0.07), 0 1.5px 6px rgba(232,119,46,0.06);
+            position: relative;
+            overflow: hidden;
+        }
+        .book-section::before {
+            display: none;
+        }
+        .book-flex, .book-info, .book-image-wrapper {
+            position: relative;
+            z-index: 1;
         }
         .book-flex {
             display: flex;
@@ -54,24 +74,42 @@
         }
         .book-image-wrapper {
             background: #fff;
-            border-radius: 14px;
-            box-shadow: 0 4px 24px rgba(232,119,46,0.13), 0 1.5px 6px rgba(0,0,0,0.07);
-            padding: 12px;
+            border-radius: 18px;
+            box-shadow: 0 4px 18px rgba(232,119,46,0.10), 0 1.5px 6px rgba(0,0,0,0.06);
+            padding: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
             min-width: 0;
+            border: 1.5px solid #E8772E;
+            transition: box-shadow 0.22s cubic-bezier(.4,1.4,.6,1), border-color 0.22s, outline 0.22s;
+            max-width: 220px;
+            margin: 0 0 0 0;
+        }
+        .book-image-wrapper:hover,
+        .book-image-wrapper:focus-within {
+            box-shadow: 0 0 0 5px rgba(232,119,46,0.10), 0 8px 32px rgba(232,119,46,0.13), 0 2px 8px rgba(0,0,0,0.10);
+            border-color: #E8772E;
+            outline: 2.5px solid rgba(232,119,46,0.18);
+            outline-offset: 2px;
+            background: #fffefb;
         }
         .book-cover {
-            flex: none;
-            max-width: 200px;
-            min-width: 140px;
-            width: 100%;
-            border-radius: 10px;
-            box-shadow: none;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(232,119,46,0.08);
             border: none;
             background: none;
             margin: 0;
+            max-width: 200px;
+            min-width: 120px;
+            width: 100%;
+            display: block;
+            transition: box-shadow 0.18s;
+        }
+        /* Fjern overdreven hover på bilde selv */
+        .book-image-wrapper a:focus .book-cover,
+        .book-image-wrapper a:hover .book-cover {
+            box-shadow: 0 2px 8px rgba(232,119,46,0.10);
         }
         .book-info {
             flex: 1 1 320px;
@@ -138,7 +176,13 @@
             margin-top: 18px;
             font-style: italic;
             color: #D0631A;
-            font-size: 1.08rem;
+            font-size: 1.13rem;
+            background: rgba(255,255,255,0.82);
+            border-radius: 7px;
+            padding: 7px 14px 7px 10px;
+            box-shadow: 0 2px 8px rgba(232,119,46,0.07);
+            display: inline-block;
+            font-weight: 500;
         }
         .content-section {
             margin-top: 32px;
@@ -201,13 +245,15 @@
             border-radius: 6px;
             transition: background 0.15s;
         }
+        .menu-toggle:hover,
         .menu-toggle:focus {
-            outline: 2px solid #E8772E;
+            background: #fbeee0;
+            border-radius: 0px;
         }
         .menu-bar {
             width: 28px;
             height: 3.5px;
-            background: #E8772E;
+            background: #2d1c0b;
             border-radius: 2px;
             display: block;
             transition: all 0.2s;
@@ -270,7 +316,7 @@
             .book-image-wrapper {
                 max-width: 90vw;
                 margin: 0 auto 12px auto;
-                padding: 6px;
+                padding: 4px;
             }
             .book-cover {
                 max-width: 100%;
