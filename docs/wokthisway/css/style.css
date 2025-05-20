@@ -323,6 +323,28 @@ footer {
 .main-nav.open .nav-list {
     display: flex;
 }
+.polaroid {
+  display: inline-block;
+  background: white;
+  padding: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  width: 300px;
+  margin: 20px auto;
+}
+
+.polaroid img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.polaroid .caption {
+  font-family: 'Patrick Hand', cursive;
+  font-size: 1.2em;
+  color: #333;
+  margin-top: 10px;
+}
 @media (max-width: 900px) {
     .book-flex {
         gap: 24px;

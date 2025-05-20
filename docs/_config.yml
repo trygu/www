@@ -2,3 +2,7 @@ title: Falch Software
 description: Falch Software
 markdown: kramdown
 theme: minima
+collections:
+  recipes:
+    output: true
+    permalink: /recipes/:name/
