@@ -1,0 +1,47 @@
+---
+layout: default
+title: "Recipes"
+---
+
+<h1>Recipes</h1>
+<p>Explore all the delicious keto-friendly recipes below:</p>
+
+<ul>
+  {% for recipe in site.recipes %}
+    <li>
+      <a href="{{ recipe.url }}">
+        <div class="polaroid">
+          <img src="{{ recipe.image }}" alt="{{ recipe.title }}">
+          <div class="caption">{{ recipe.caption }}</div>
+        </div>
+        <h2>{{ recipe.title }}</h2>
+      </a>
+    </li>
+  {% endfor %}
+</ul>
+
+<style>
+  ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
+  li {
+    flex: 1 1 calc(33.333% - 20px);
+    box-sizing: border-box;
+  }
+
+  li a {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  h2 {
+    text-align: center;
+    font-size: 1.2em;
+    margin-top: 10px;
+  }
+</style>
