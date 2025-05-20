@@ -326,24 +326,33 @@ footer {
 .polaroid {
   display: inline-block;
   background: white;
-  padding: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  padding: 10px; /* Reduced padding for a smaller frame */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   text-align: center;
-  width: 300px;
-  margin: 20px auto;
+  width: 190px; /* Adjusted width */
+  height: 230px; /* Adjusted height */
+  margin: 10px;
+  border-radius: 8px;
+  position: relative;
 }
 
 .polaroid img {
-  width: 100%;
-  height: auto;
-  display: block;
+  width: 170px; /* Adjusted image width */
+  height: 170px; /* Adjusted image height */
+  object-fit: cover; /* Ensure the image is cropped to fit */
+  border-radius: 4px;
+  background: white;
 }
 
 .polaroid .caption {
-  font-family: 'Patrick Hand', cursive;
-  font-size: 1.2em;
+  font-family: 'Patrick Hand', cursive; /* Handwritten font */
+  font-size: 0.8em; /* Adjusted font size */
   color: #333;
-  margin-top: 10px;
+  margin-top: 5px; /* Reduced space for the lip */
+  height: auto; /* Adjust height dynamically */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 @media (max-width: 900px) {
     .book-flex {

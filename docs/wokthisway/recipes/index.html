@@ -1,5 +1,5 @@
 ---
-layout: custom
+layout: default
 title: "Recipes"
 ---
 
@@ -7,17 +7,16 @@ title: "Recipes"
 <p>Explore all the delicious keto-friendly recipes below:</p>
 
 <ul>
-  {% for recipe in site.pages %}
-    {% if recipe.layout == "recipe" %}
-      <li>
-        <a href="{{ recipe.url }}">
-          <div class="polaroid">
-            <img src="{{ recipe.image }}" alt="{{ recipe.title }}">
-            <div class="caption">{{ recipe.caption }}</div>
-          </div>
-        </a>
-      </li>
-    {% endif %}
+  {% for recipe in site.recipes %}
+    <li>
+      <a href="{{ recipe.url }}">
+        <div class="polaroid">
+          <img src="{{ recipe.image }}" alt="{{ recipe.title }}">
+          <div class="caption">{{ recipe.caption }}</div>
+        </div>
+        <h2>{{ recipe.title }}</h2>
+      </a>
+    </li>
   {% endfor %}
 </ul>
 

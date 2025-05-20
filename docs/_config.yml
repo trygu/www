@@ -1,8 +1,8 @@
-title: Falch Software
-description: Falch Software
+title: Wok This Way
+description: A Keto Journey Through Asia
 markdown: kramdown
 theme: minima
 collections:
   recipes:
     output: true
-    permalink: /recipes/:name/
+    permalink: /wokthisway/recipes/:name/
