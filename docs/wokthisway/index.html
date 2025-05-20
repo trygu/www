@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wok This Way – A Keto Journey Through Asia</title>
+    <style>
+        body {
+            font-family: Georgia, serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #FAF0E6 0%, #fbeee0 100%);
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 600px;
+            margin: 40px auto 40px auto;
+            padding: 32px 24px;
+            background-color: #fff;
+            border-radius: 18px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.10), 0 1.5px 6px rgba(232,119,46,0.08);
+        }
+        header {
+            background: none;
+            color: #4A4A4A;
+            text-align: center;
+            margin-bottom: 24px;
+            position: relative;
+        }
+        header h1 {
+            margin: 0 0 8px 0;
+            font-size: 2.7rem;
+            letter-spacing: 1px;
+        }
+        header p {
+            margin: 0;
+            font-size: 1.15rem;
+            color: #E8772E;
+            font-style: italic;
+            font-weight: 500;
+        }
+        .book-section {
+            margin-bottom: 32px;
+            background: linear-gradient(120deg, #fbeee0 0%, #fff 100%);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.07), 0 1.5px 6px rgba(232,119,46,0.06);
+        }
+        .book-flex {
+            display: flex;
+            gap: 48px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+        .book-image-wrapper {
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 4px 24px rgba(232,119,46,0.13), 0 1.5px 6px rgba(0,0,0,0.07);
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 0;
+        }
+        .book-cover {
+            flex: none;
+            max-width: 200px;
+            min-width: 140px;
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: none;
+            border: none;
+            background: none;
+            margin: 0;
+        }
+        .book-info {
+            flex: 1 1 320px;
+            min-width: 220px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .book-title {
+            font-size: 2rem;
+            margin: 0 0 18px 0;
+            font-family: 'Georgia', serif;
+            color: #2d1c0b;
+            letter-spacing: 0.5px;
+        }
+        .book-description {
+            font-size: 1.08rem;
+            line-height: 1.8;
+            color: #333;
+            margin-bottom: 18px;
+        }
+        .book-info ul {
+            margin: 0 0 1.2em 20px;
+            padding-left: 0;
+        }
+        .amazon-link-wrapper {
+            margin-top: 24px;
+            display: flex;
+            justify-content: flex-start;
+        }
+        .amazon-link {
+            display: inline-block;
+            font-size: 1.18rem;
+            padding: 16px 38px;
+            background: linear-gradient(90deg, #E8772E 60%, #D0631A 100%);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(232,119,46,0.10);
+            transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+            text-align: center;
+            letter-spacing: 0.5px;
+        }
+        .amazon-link:hover {
+            background: linear-gradient(90deg, #D0631A 60%, #E8772E 100%);
+            box-shadow: 0 4px 16px rgba(232,119,46,0.18);
+            transform: translateY(-2px) scale(1.04);
+            filter: brightness(1.08);
+        }
+        .book-image-wrapper a {
+            display: block;
+            transition: transform 0.18s cubic-bezier(.4,1.4,.6,1), box-shadow 0.18s, filter 0.18s;
+            border-radius: 14px;
+        }
+        .book-image-wrapper a:hover,
+        .book-image-wrapper a:focus {
+            transform: scale(1.04) translateY(-2px);
+            box-shadow: 0 8px 32px rgba(232,119,46,0.18), 0 1.5px 6px rgba(0,0,0,0.10);
+            filter: brightness(1.07) saturate(1.08);
+            outline: none;
+        }
+        .no-rice {
+            margin-top: 18px;
+            font-style: italic;
+            color: #D0631A;
+            font-size: 1.08rem;
+        }
+        .content-section {
+            margin-top: 32px;
+            padding: 24px 18px;
+            background-color: #FDFBF5;
+            border-left: 5px solid #E8772E;
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(232,119,46,0.04);
+        }
+        .content-section h2 {
+            color: #D0631A;
+            margin-top: 0;
+            font-size: 1.3rem;
+            letter-spacing: 0.5px;
+        }
+        ul {
+            margin: 0 0 0 18px;
+        }
+        footer {
+            text-align: center;
+            padding: 18px 0 8px 0;
+            background: none;
+            color: #888;
+            font-size: 0.98rem;
+        }
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+        .footer-email {
+            margin: 0;
+        }
+        .footer-email a {
+            color: #D0631A;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1.05rem;
+            transition: color 0.15s;
+        }
+        .footer-email a:hover {
+            color: #E8772E;
+            text-decoration: underline;
+        }
+        .main-nav {
+            position: absolute;
+            top: 24px;
+            right: 32px;
+            z-index: 10;
+        }
+        .menu-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding: 8px;
+            border-radius: 6px;
+            transition: background 0.15s;
+        }
+        .menu-toggle:focus {
+            outline: 2px solid #E8772E;
+        }
+        .menu-bar {
+            width: 28px;
+            height: 3.5px;
+            background: #E8772E;
+            border-radius: 2px;
+            display: block;
+            transition: all 0.2s;
+        }
+        .nav-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            position: absolute;
+            top: 44px;
+            right: 0;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 24px rgba(232,119,46,0.13), 0 1.5px 6px rgba(0,0,0,0.07);
+            min-width: 180px;
+            display: none;
+            flex-direction: column;
+            gap: 0;
+            text-align: left;
+        }
+        .nav-list li {
+            border-bottom: 1px solid #fbeee0;
+        }
+        .nav-list li:last-child {
+            border-bottom: none;
+        }
+        .nav-list a {
+            display: block;
+            padding: 14px 22px;
+            color: #D0631A;
+            text-decoration: none;
+            font-size: 1.08rem;
+            font-weight: 500;
+            transition: background 0.15s, color 0.15s;
+            text-align: left;
+        }
+        .nav-list a:hover,
+        .nav-list a:focus {
+            background: #fbeee0;
+            color: #E8772E;
+        }
+        .main-nav.open .nav-list {
+            display: flex;
+        }
+        @media (max-width: 900px) {
+            .book-flex {
+                gap: 24px;
+            }
+        }
+        @media (max-width: 700px) {
+            .container {
+                max-width: 98vw;
+                padding: 10vw 2vw;
+            }
+            .book-flex {
+                flex-direction: column;
+                gap: 18px;
+                align-items: stretch;
+            }
+            .book-image-wrapper {
+                max-width: 90vw;
+                margin: 0 auto 12px auto;
+                padding: 6px;
+            }
+            .book-cover {
+                max-width: 100%;
+            }
+            .amazon-link-wrapper {
+                justify-content: center;
+            }
+            .main-nav {
+                top: 12px;
+                right: 10px;
+            }
+            .nav-list {
+                min-width: 140px;
+                top: 38px;
+            }
+            .nav-list a {
+                padding: 12px 14px;
+            }
+        }
+    </style>
+    <script>
+        // Simple menu toggle for sandwich menu
+        document.addEventListener('DOMContentLoaded', function() {
+            var menuToggle = document.querySelector('.menu-toggle');
+            var nav = document.querySelector('.main-nav');
+            menuToggle.addEventListener('click', function() {
+                nav.classList.toggle('open');
+            });
+            // Optional: close menu when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!nav.contains(e.target) && nav.classList.contains('open')) {
+                    nav.classList.remove('open');
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+    <header>
+        <h1>Wok This Way</h1>
+        <p>A Keto Journey Through Asia: Low-Carb Lunches, Dinners & Dumplings That Don’t Suck</p>
+        <nav class="main-nav">
+            <button class="menu-toggle" aria-label="Open menu">
+                <span class="menu-bar"></span>
+                <span class="menu-bar"></span>
+                <span class="menu-bar"></span>
+            </button>
+            <ul class="nav-list">
+                <li><a href="#bonus-recipes">Bonus Recipes</a></li>
+                <li><a href="#recommended-products">Recommended Products</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="container book-section">
+            <div class="book-flex">
+                <div class="book-image-wrapper">
+                    <a href="https://www.amazon.com/dp/B0F3P4BPRZ" target="_blank" rel="noopener" aria-label="Buy Wok This Way on Amazon">
+                        <img src="../images/wokthisway.jpeg" alt="Wok This Way – Keto Asian Cookbook Cover" class="book-cover" loading="lazy">
+                    </a>
+                </div>
+                <article class="book-info">
+                    <h2 class="book-title">About the Book</h2>
+                    <div class="book-description">
+                        <p>Forget the bacon-wrapped clichés and bulletproof coffee. <strong>Wok This Way</strong> is a warm, practical, and flavor-loving keto cookbook inspired by the kitchens of East Asia — from comforting bowls of kimchi jjigae and sukiyaki to everyday ramen, tofu hotpots, and chili crisp eggs that somehow make everything better.</p>
+                        <p>Written by someone who actually lives this way, this book is built on real food and real habits: chicken thighs, shirataki noodles, fermented heat, umami-rich sauces, and broths that carry you through long days and quiet nights. Whether you’re practicing intermittent fasting, doing OMAD, or just trying to eat well without giving up joy — this book is here for it.</p>
+                        <ul>
+                            <li>Keto-friendly ramen (brothy and dry-style), stir-fries, soups, and hotpots</li>
+                            <li>Dumplings wrapped in napa cabbage or pak choi — no flour needed</li>
+                            <li>Sauces and sides that turn basic into craveable</li>
+                            <li>Smart, no-nonsense swaps that still deliver big flavor</li>
+                            <li>A lived-in approach to keto, fasting, and finding what works for you</li>
+                        </ul>
+                        <p class="no-rice">No rice. No guilt. No pressure. Just food that feels good — and tastes even better.</p>
+                    </div>
+                    <div class="amazon-link-wrapper">
+                        <a href="https://www.amazon.com/dp/B0F3P4BPRZ" target="_blank" rel="noopener" class="amazon-link">
+                            Get Your Copy on Amazon
+                        </a>
+                    </div>
+                </article>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p class="footer-email"><a href="mailto:post@falch.me">Trygve Falch</a> © 2025 Wok This Way. All Rights Reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>
