@@ -296,3 +296,159 @@ function renderTable(tracks) {
     tracksTableBody.appendChild(tr);
   }
 }
+
+// --- Restored: CSV generation, UI handlers, init ---
+
+function tracksToCSV(tracks) {
+  // Always include artwork URL column (select largest available image)
+  const header = ["Artist", "Title", "Album", "Date Added", "Artwork URL"];
+  const rows = tracks.map(item => {
+    const t = item.track || {};
+    let artwork = "";
+    const imgs = t.album?.images;
+    if (Array.isArray(imgs) && imgs.length) {
+      const best = imgs.reduce((bestSoFar, img) => {
+        if (!bestSoFar) return img;
+        const bestW = bestSoFar.width || 0;
+        const curW = img.width || 0;
+        return curW > bestW ? img : bestSoFar;
+      }, null);
+      artwork = best?.url || "";
+    }
+    const cols = [
+      (t.artists || []).map(a => a.name).join(", "),
+      t.name || "",
+      t.album?.name || "",
+      item.added_at ? item.added_at.slice(0, 10) : "",
+      artwork
+    ];
+    return cols.map(v => `"${(v || "").replace(/"/g, '""')}"`).join(",");
+  });
+  return [header.join(","), ...rows].join("\n");
+}
+
+// UI: load playlist -> fetch tracks, render CSV/table/gallery
+async function handleLoad() {
+  errorEl.textContent = "";
+  previewEl.textContent = "";
+  previewEl.hidden = true;
+  downloadBtn.style.display = "none";
+  galleryEl.hidden = true;
+  galleryEl.innerHTML = "";
+  tableView.hidden = true;
+  clearTable();
+
+  const input = playlistInput.value.trim();
+  const playlistId = extractPlaylistId(input);
+  if (!playlistId) {
+    errorEl.textContent = "Invalid playlist URL or ID.";
+    return;
+  }
+  const tokenObj = getStoredToken();
+  if (!tokenObj) {
+    errorEl.textContent = "You must sign in first.";
+    return;
+  }
+  statusEl.textContent = "Fetching playlist …";
+  try {
+    const tracks = await fetchPlaylistTracks(tokenObj.access_token, playlistId);
+    if (!tracks.length) throw new Error("No tracks found.");
+
+    const csv = tracksToCSV(tracks);
+
+    // Show table view if enabled; otherwise show CSV preview
+    if (showTableView?.checked) {
+      renderTable(tracks);
+      tableView.hidden = false;
+      previewEl.hidden = true;
+    } else {
+      previewEl.textContent = csv;
+      previewEl.hidden = false;
+    }
+
+    downloadBtn.style.display = "";
+    downloadBtn.onclick = () => {
+      try {
+        const blob = new Blob([csv], { type: "text/csv" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `spotify-playlist-${playlistId}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }, 100);
+      } catch (err) {
+        console.error("Download failed:", err);
+      }
+    };
+
+    // If user requested artwork thumbnails, render them in gallery
+    if (includeArtwork?.checked) {
+      const thumbs = [];
+      for (const item of tracks) {
+        const t = item.track || {};
+        const img = t.album?.images?.[0]?.url || "";
+        if (img) {
+          const el = document.createElement("div");
+          const imgEl = document.createElement("img");
+          imgEl.src = img;
+          imgEl.className = "thumb";
+          imgEl.alt = (t.name ? `${t.name} artwork` : "Artwork");
+          el.appendChild(imgEl);
+          thumbs.push(el);
+        }
+      }
+      if (thumbs.length) {
+        galleryEl.innerHTML = "";
+        for (const e of thumbs) galleryEl.appendChild(e);
+        galleryEl.hidden = false;
+      }
+    }
+
+    statusEl.textContent = "Ready!";
+  } catch (e) {
+    console.error(e);
+    errorEl.textContent = e.message || String(e);
+    statusEl.textContent = "";
+    previewEl.hidden = true;
+    galleryEl.hidden = true;
+    tableView.hidden = true;
+  }
+}
+
+// INIT bindings
+loginBtn.onclick = login;
+logoutBtn.onclick = logout;
+loadBtn.onclick = handleLoad;
+playlistInput.addEventListener("keydown", e => {
+  if (e.key === "Enter") handleLoad();
+});
+
+// clientId placeholder helper (show redirect copy + disable login if not set)
+if (!clientId || clientId === CLIENT_PLACEHOLDER) {
+  statusEl.textContent = "Not configured: set clientId in the code.";
+  errorEl.textContent = "Replace clientId = 'DIN_CLIENT_ID_HER' with your Spotify Client ID. Redirect URI must be registered exactly in the Spotify Dashboard.";
+  copyRedirectBtn.style.display = "";
+  loginBtn.disabled = true;
+  copyRedirectBtn.onclick = async () => {
+    try {
+      await navigator.clipboard.writeText(redirectUri);
+      copyRedirectBtn.textContent = "Copied!";
+      setTimeout(() => copyRedirectBtn.textContent = "Copy redirect URI", 1400);
+    } catch {
+      errorEl.textContent = "Could not copy redirect URI to clipboard.";
+    }
+  };
+}
+
+// Start auth redirect handling and login check
+handleAuthRedirect().then(() => {
+  try {
+    checkLogin();
+  } catch (err) {
+    console.error("checkLogin failed:", err);
+  }
+});
