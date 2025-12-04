@@ -110,6 +110,33 @@
       background: var(--primary);
       color: var(--bg);
     }
+    /* user avatar / gallery */
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1px solid var(--input-border);
+    }
+    #userInfo {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-top: 0.5rem;
+    }
+    #gallery {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.75rem;
+    }
+    .thumb {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 4px;
+      border: 1px solid var(--preview-border);
+    }
     @media (max-width: 600px) {
       body { margin: 1rem; }
     }
@@ -118,6 +145,11 @@
 <body>
   <h1>GrooveExport</h1>
   <p>Sign in with Spotify, paste a playlist URL or ID, and download CSV.</p>
+
+  <div id="userInfo" aria-hidden="true" style="display:none;">
+    <img id="userAvatar" class="avatar" src="" alt="User avatar" />
+    <span id="userName" style="font-weight:600;"></span>
+  </div>
 
   <div id="status">Checking login …</div>
   <button id="loginBtn">Sign in with Spotify</button>
@@ -128,11 +160,15 @@
     <input id="playlistInput" type="text"
            placeholder="Example: https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M or 37i9dQZF1DXcBWIGoYBM5M" autocomplete="off" />
     <button id="loadBtn">Fetch and Generate CSV</button>
+    <label style="display:block; margin-top:0.6rem; font-weight:400;">
+      <input id="includeArtwork" type="checkbox" /> Include artwork URLs and thumbnails
+    </label>
     <div id="error" class="error" aria-live="polite"></div>
   </div>
 
   <button id="downloadBtn" style="display:none;">Download CSV</button>
   <div id="preview" aria-label="CSV Preview" hidden></div>
+  <div id="gallery" hidden aria-label="Artwork thumbnails"></div>
   <button id="copyRedirectBtn" style="display:none; margin-top:0.6rem; font-size:0.85rem; padding:0.25rem 0.5rem; border-radius:4px; border:1px solid var(--input-border); background:transparent; color:var(--fg);">Copy redirect URI</button>
 
   <script type="module" src="./js/app.js"></script>

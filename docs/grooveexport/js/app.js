@@ -18,6 +18,13 @@ const playlistInput = document.getElementById("playlistInput");
 const copyRedirectBtn = document.getElementById("copyRedirectBtn");
 const CLIENT_PLACEHOLDER = "DIN_CLIENT_ID_HER";
 
+// New UI elements
+const userAvatar = document.getElementById("userAvatar");
+const userName = document.getElementById("userName");
+const userInfo = document.getElementById("userInfo");
+const includeArtwork = document.getElementById("includeArtwork");
+const galleryEl = document.getElementById("gallery");
+
 // === PKCE helper functions ===
 async function sha256(plain) {
   const encoder = new TextEncoder();
@@ -103,6 +110,8 @@ async function checkLogin() {
     statusEl.textContent = "Logged in — expires: " + formatExpiry(token.expires_at);
     loginBtn.style.display = "none";
     logoutBtn.style.display = "";
+    // show user profile (avatar/name)
+    fetchUserProfile(token.access_token);
     return true;
   } else {
     statusEl.textContent = "Not logged in.";
@@ -125,6 +134,7 @@ function logout() {
   logoutBtn.style.display = "none";
   previewEl.textContent = "";
   downloadBtn.style.display = "none";
+  clearUserUI();
 }
 
 async function login() {
@@ -179,16 +189,53 @@ async function fetchPlaylistTracks(token, playlistId) {
   return items;
 }
 
-function tracksToCSV(tracks) {
++// Fetch and display the current user's profile (avatar + display name)
++async function fetchUserProfile(token) {
++  try {
++    const resp = await fetch("https://api.spotify.com/v1/me", {
++      headers: { Authorization: `Bearer ${token}` }
++    });
++    if (!resp.ok) return;
++    const data = await resp.json();
++    const img = data.images && data.images[0] && data.images[0].url;
++    if (img) {
++      userAvatar.src = img;
++      userAvatar.alt = data.display_name ? `${data.display_name} avatar` : "User avatar";
++      userInfo.style.display = "";
++      userInfo.setAttribute("aria-hidden", "false");
++    } else {
++      userInfo.style.display = "";
++      userInfo.setAttribute("aria-hidden", "false");
++    }
++    userName.textContent = data.display_name || data.id || "";
++  } catch {
++    /* ignore profile errors — non-critical */
++  }
++}
++
++// Clear user UI on logout
++function clearUserUI() {
++  userAvatar.src = "";
++  userName.textContent = "";
++  userInfo.style.display = "none";
++  galleryEl.hidden = true;
++  galleryEl.innerHTML = "";
++}
++
+function tracksToCSV(tracks, includeArtworkFlag = false) {
   const header = ["Artist", "Title", "Album", "Date Added"];
+  if (includeArtworkFlag) header.push("Artwork URL");
   const rows = tracks.map(item => {
-    const t = item.track;
-    return [
-      t.artists.map(a => a.name).join(", "),
-      t.name,
-      t.album.name,
+    const t = item.track || {};
+    const artwork = (t.album && t.album.images && t.album.images[0] && t.album.images[0].url) || "";
+    const cols = [
+      (t.artists || []).map(a => a.name).join(", "),
+      t.name || "",
+      (t.album && t.album.name) || "",
       item.added_at ? item.added_at.slice(0, 10) : ""
-    ].map(v => `"${(v || "").replace(/"/g, '""')}"`).join(",");
+    ];
+    if (includeArtworkFlag) cols.push(artwork);
+    return cols.map(v => `"${(v || "").replace(/"/g, '""')}"`).join(",");
   });
   return [header.join(","), ...rows].join("\n");
 }
@@ -199,6 +246,8 @@ async function handleLoad() {
   previewEl.textContent = "";
   previewEl.hidden = true;
   downloadBtn.style.display = "none";
+  galleryEl.hidden = true;
+  galleryEl.innerHTML = "";
   const input = playlistInput.value.trim();
   const playlistId = extractPlaylistId(input);
   if (!playlistId) {
@@ -214,7 +263,8 @@ async function handleLoad() {
   try {
     const tracks = await fetchPlaylistTracks(tokenObj.access_token, playlistId);
     if (!tracks.length) throw new Error("No tracks found.");
-    const csv = tracksToCSV(tracks);
+    const wantArtwork = !!(includeArtwork && includeArtwork.checked);
+    const csv = tracksToCSV(tracks, wantArtwork);
     previewEl.textContent = csv;
     previewEl.hidden = false;
     downloadBtn.style.display = "";
@@ -231,11 +281,34 @@ async function handleLoad() {
         URL.revokeObjectURL(url);
       }, 100);
     };
+    // If user requested artwork, render thumbnails below the CSV preview
+    if (wantArtwork) {
+      const thumbs = [];
+      for (const item of tracks) {
+        const t = item.track || {};
+        const img = (t.album && t.album.images && t.album.images[0] && t.album.images[0].url) || "";
+        if (img) {
+          const el = document.createElement("div");
+          const imgEl = document.createElement("img");
+          imgEl.src = img;
+          imgEl.className = "thumb";
+          imgEl.alt = (t.name ? `${t.name} artwork` : "Artwork");
+          el.appendChild(imgEl);
+          thumbs.push(el);
+        }
+      }
+      if (thumbs.length) {
+        galleryEl.innerHTML = "";
+        for (const e of thumbs) galleryEl.appendChild(e);
+        galleryEl.hidden = false;
+      }
+    }
     statusEl.textContent = "Ready!";
   } catch (e) {
     errorEl.textContent = e.message;
     statusEl.textContent = "";
     previewEl.hidden = true;
+    galleryEl.hidden = true;
   }
 }
 
@@ -249,20 +322,20 @@ playlistInput.addEventListener("keydown", e => {
 
 // If clientId hasn't been changed from the placeholder, show immediate hint and disable login
 if (!clientId || clientId === CLIENT_PLACEHOLDER) {
-  statusEl.textContent = "Not configured: set clientId in the code.";
-  errorEl.textContent = "Replace clientId = 'DIN_CLIENT_ID_HER' with your Spotify Client ID. Redirect URI must be registered exactly in the Spotify Dashboard.";
-  // show copy button for easy redirect URI copy
-  copyRedirectBtn.style.display = "";
-  loginBtn.disabled = true;
-  copyRedirectBtn.onclick = async () => {
-    try {
-      await navigator.clipboard.writeText(redirectUri);
-      copyRedirectBtn.textContent = "Copied!";
-      setTimeout(() => copyRedirectBtn.textContent = "Copy redirect URI", 1400);
-    } catch {
-      errorEl.textContent = "Could not copy redirect URI to clipboard.";
-    }
-  };
-}
+   statusEl.textContent = "Not configured: set clientId in the code.";
+   errorEl.textContent = "Replace clientId = 'DIN_CLIENT_ID_HER' with your Spotify Client ID. Redirect URI must be registered exactly in the Spotify Dashboard.";
+   // show copy button for easy redirect URI copy
+   copyRedirectBtn.style.display = "";
+   loginBtn.disabled = true;
+   copyRedirectBtn.onclick = async () => {
+     try {
+       await navigator.clipboard.writeText(redirectUri);
+       copyRedirectBtn.textContent = "Copied!";
+       setTimeout(() => copyRedirectBtn.textContent = "Copy redirect URI", 1400);
+     } catch {
+       errorEl.textContent = "Could not copy redirect URI to clipboard.";
+     }
+   };
+ }
 
 handleAuthRedirect().then(checkLogin);
