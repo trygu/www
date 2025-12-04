@@ -189,42 +189,42 @@ async function fetchPlaylistTracks(token, playlistId) {
   return items;
 }
 
-+// Fetch and display the current user's profile (avatar + display name)
-+async function fetchUserProfile(token) {
-+  try {
-+    const resp = await fetch("https://api.spotify.com/v1/me", {
-+      headers: { Authorization: `Bearer ${token}` }
-+    });
-+    if (!resp.ok) return;
-+    const data = await resp.json();
-+    const img = data.images && data.images[0] && data.images[0].url;
-+    if (img) {
-+      userAvatar.src = img;
-+      userAvatar.alt = data.display_name ? `${data.display_name} avatar` : "User avatar";
-+      userInfo.style.display = "";
-+      userInfo.setAttribute("aria-hidden", "false");
-+    } else {
-+      userInfo.style.display = "";
-+      userInfo.setAttribute("aria-hidden", "false");
-+    }
-+    userName.textContent = data.display_name || data.id || "";
-+  } catch {
-+    /* ignore profile errors — non-critical */
-+  }
-+}
-+
-+// Clear user UI on logout
-+function clearUserUI() {
-+  userAvatar.src = "";
-+  userName.textContent = "";
-+  userInfo.style.display = "none";
-+  galleryEl.hidden = true;
-+  galleryEl.innerHTML = "";
-+}
-+
-function tracksToCSV(tracks, includeArtworkFlag = false) {
-  const header = ["Artist", "Title", "Album", "Date Added"];
-  if (includeArtworkFlag) header.push("Artwork URL");
+// Fetch and display the current user's profile (avatar + display name)
+async function fetchUserProfile(token) {
+  try {
+    const resp = await fetch("https://api.spotify.com/v1/me", {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!resp.ok) return;
+    const data = await resp.json();
+    const img = data.images && data.images[0] && data.images[0].url;
+    if (img) {
+      userAvatar.src = img;
+      userAvatar.alt = data.display_name ? `${data.display_name} avatar` : "User avatar";
+      userInfo.style.display = "";
+      userInfo.setAttribute("aria-hidden", "false");
+    } else {
+      userInfo.style.display = "";
+      userInfo.setAttribute("aria-hidden", "false");
+    }
+    userName.textContent = data.display_name || data.id || "";
+  } catch {
+    /* ignore profile errors — non-critical */
+  }
+}
+
+// Clear user UI on logout
+function clearUserUI() {
+  userAvatar.src = "";
+  userName.textContent = "";
+  userInfo.style.display = "none";
+  galleryEl.hidden = true;
+  galleryEl.innerHTML = "";
+}
+
+function tracksToCSV(tracks) {
+  // Always include artwork URL column
+  const header = ["Artist", "Title", "Album", "Date Added", "Artwork URL"];
   const rows = tracks.map(item => {
     const t = item.track || {};
     const artwork = (t.album && t.album.images && t.album.images[0] && t.album.images[0].url) || "";
@@ -232,9 +232,9 @@ function tracksToCSV(tracks, includeArtworkFlag = false) {
       (t.artists || []).map(a => a.name).join(", "),
       t.name || "",
       (t.album && t.album.name) || "",
-      item.added_at ? item.added_at.slice(0, 10) : ""
+      item.added_at ? item.added_at.slice(0, 10) : "",
+      artwork
     ];
-    if (includeArtworkFlag) cols.push(artwork);
     return cols.map(v => `"${(v || "").replace(/"/g, '""')}"`).join(",");
   });
   return [header.join(","), ...rows].join("\n");
@@ -263,8 +263,8 @@ async function handleLoad() {
   try {
     const tracks = await fetchPlaylistTracks(tokenObj.access_token, playlistId);
     if (!tracks.length) throw new Error("No tracks found.");
-    const wantArtwork = !!(includeArtwork && includeArtwork.checked);
-    const csv = tracksToCSV(tracks, wantArtwork);
+    // CSV now always includes artwork URL column
+    const csv = tracksToCSV(tracks);
     previewEl.textContent = csv;
     previewEl.hidden = false;
     downloadBtn.style.display = "";
@@ -282,7 +282,7 @@ async function handleLoad() {
       }, 100);
     };
     // If user requested artwork, render thumbnails below the CSV preview
-    if (wantArtwork) {
+    if (includeArtwork && includeArtwork.checked) {
       const thumbs = [];
       for (const item of tracks) {
         const t = item.track || {};
