@@ -24,6 +24,9 @@ const userName = document.getElementById("userName");
 const userInfo = document.getElementById("userInfo");
 const includeArtwork = document.getElementById("includeArtwork");
 const galleryEl = document.getElementById("gallery");
+const showTableView = document.getElementById("showTableView");
+const tableView = document.getElementById("tableView");
+const tracksTableBody = document.querySelector("#tracksTable tbody");
 
 // === PKCE helper functions ===
 async function sha256(plain) {
@@ -197,7 +200,7 @@ async function fetchUserProfile(token) {
     });
     if (!resp.ok) return;
     const data = await resp.json();
-    const img = data.images && data.images[0] && data.images[0].url;
+    const img = data.images?.[0]?.url;
     if (img) {
       userAvatar.src = img;
       userAvatar.alt = data.display_name ? `${data.display_name} avatar` : "User avatar";
@@ -220,122 +223,76 @@ function clearUserUI() {
   userInfo.style.display = "none";
   galleryEl.hidden = true;
   galleryEl.innerHTML = "";
-}
-
-function tracksToCSV(tracks) {
-  // Always include artwork URL column
-  const header = ["Artist", "Title", "Album", "Date Added", "Artwork URL"];
-  const rows = tracks.map(item => {
-    const t = item.track || {};
-    const artwork = (t.album && t.album.images && t.album.images[0] && t.album.images[0].url) || "";
-    const cols = [
-      (t.artists || []).map(a => a.name).join(", "),
-      t.name || "",
-      (t.album && t.album.name) || "",
-      item.added_at ? item.added_at.slice(0, 10) : "",
-      artwork
-    ];
-    return cols.map(v => `"${(v || "").replace(/"/g, '""')}"`).join(",");
-  });
-  return [header.join(","), ...rows].join("\n");
-}
-
-// === UI HANDLERS ===
-async function handleLoad() {
-  errorEl.textContent = "";
-  previewEl.textContent = "";
+  clearTable();
+  tableView.hidden = true;
   previewEl.hidden = true;
-  downloadBtn.style.display = "none";
-  galleryEl.hidden = true;
-  galleryEl.innerHTML = "";
-  const input = playlistInput.value.trim();
-  const playlistId = extractPlaylistId(input);
-  if (!playlistId) {
-    errorEl.textContent = "Invalid playlist URL or ID.";
-    return;
-  }
-  const tokenObj = getStoredToken();
-  if (!tokenObj) {
-    errorEl.textContent = "You must sign in first.";
-    return;
-  }
-  statusEl.textContent = "Fetching playlist …";
-  try {
-    const tracks = await fetchPlaylistTracks(tokenObj.access_token, playlistId);
-    if (!tracks.length) throw new Error("No tracks found.");
-    // CSV now always includes artwork URL column
-    const csv = tracksToCSV(tracks);
-    previewEl.textContent = csv;
-    previewEl.hidden = false;
-    downloadBtn.style.display = "";
-    downloadBtn.onclick = () => {
-      const blob = new Blob([csv], { type: "text/csv" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `spotify-playlist-${playlistId}.csv`;
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(() => {
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      }, 100);
-    };
-    // If user requested artwork, render thumbnails below the CSV preview
-    if (includeArtwork && includeArtwork.checked) {
-      const thumbs = [];
-      for (const item of tracks) {
-        const t = item.track || {};
-        const img = (t.album && t.album.images && t.album.images[0] && t.album.images[0].url) || "";
-        if (img) {
-          const el = document.createElement("div");
-          const imgEl = document.createElement("img");
-          imgEl.src = img;
-          imgEl.className = "thumb";
-          imgEl.alt = (t.name ? `${t.name} artwork` : "Artwork");
-          el.appendChild(imgEl);
-          thumbs.push(el);
-        }
-      }
-      if (thumbs.length) {
-        galleryEl.innerHTML = "";
-        for (const e of thumbs) galleryEl.appendChild(e);
-        galleryEl.hidden = false;
-      }
-    }
-    statusEl.textContent = "Ready!";
-  } catch (e) {
-    errorEl.textContent = e.message;
-    statusEl.textContent = "";
-    previewEl.hidden = true;
-    galleryEl.hidden = true;
-  }
 }
 
-// === INIT ===
-loginBtn.onclick = login;
-logoutBtn.onclick = logout;
-loadBtn.onclick = handleLoad;
-playlistInput.addEventListener("keydown", e => {
-  if (e.key === "Enter") handleLoad();
-});
+// render HTML table of tracks
+function clearTable() {
+  if (tracksTableBody) tracksTableBody.innerHTML = "";
+}
+function renderTable(tracks) {
+  if (!tracksTableBody) return;
+  clearTable();
+  for (const item of tracks) {
+    const t = item.track || {};
+    const tr = document.createElement("tr");
 
-// If clientId hasn't been changed from the placeholder, show immediate hint and disable login
-if (!clientId || clientId === CLIENT_PLACEHOLDER) {
-   statusEl.textContent = "Not configured: set clientId in the code.";
-   errorEl.textContent = "Replace clientId = 'DIN_CLIENT_ID_HER' with your Spotify Client ID. Redirect URI must be registered exactly in the Spotify Dashboard.";
-   // show copy button for easy redirect URI copy
-   copyRedirectBtn.style.display = "";
-   loginBtn.disabled = true;
-   copyRedirectBtn.onclick = async () => {
-     try {
-       await navigator.clipboard.writeText(redirectUri);
-       copyRedirectBtn.textContent = "Copied!";
-       setTimeout(() => copyRedirectBtn.textContent = "Copy redirect URI", 1400);
-     } catch {
-       errorEl.textContent = "Could not copy redirect URI to clipboard.";
-     }
-   };
- }
+    // Artwork cell — choose largest image defensively
+    let artworkUrl = "";
+    const imgs = t.album?.images;
+    if (Array.isArray(imgs) && imgs.length) {
+      const best = imgs.reduce((bestSoFar, img) => {
+        if (!bestSoFar) return img;
+        const bestW = bestSoFar.width || 0;
+        const curW = img.width || 0;
+        return curW > bestW ? img : bestSoFar;
+      }, null);
+      artworkUrl = best?.url || "";
+    }
+    const tdArt = document.createElement("td");
+    if (artworkUrl) {
+      const img = document.createElement("img");
+      img.src = artworkUrl;
+      img.className = "thumb-sm";
+      img.alt = (t.name ? `${t.name} artwork` : "Artwork");
+      tdArt.appendChild(img);
+    } else {
+      tdArt.textContent = "";
+    }
 
-handleAuthRedirect().then(checkLogin);
+    // Artist
+    const tdArtist = document.createElement("td");
+    tdArtist.textContent = (t.artists || []).map(a => a.name).join(", ");
+
+    // Title (link to Spotify if available)
+    const tdTitle = document.createElement("td");
+    if (t.external_urls?.spotify) {
+      const a = document.createElement("a");
+      a.href = t.external_urls.spotify;
+      a.textContent = t.name || "";
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      tdTitle.appendChild(a);
+    } else {
+      tdTitle.textContent = t.name || "";
+    }
+
+    // Album
+    const tdAlbum = document.createElement("td");
+    tdAlbum.textContent = t.album?.name || "";
+
+    // Date added
+    const tdDate = document.createElement("td");
+    tdDate.textContent = item.added_at ? item.added_at.slice(0,10) : "";
+
+    tr.appendChild(tdArt);
+    tr.appendChild(tdArtist);
+    tr.appendChild(tdTitle);
+    tr.appendChild(tdAlbum);
+    tr.appendChild(tdDate);
+
+    tracksTableBody.appendChild(tr);
+  }
+}

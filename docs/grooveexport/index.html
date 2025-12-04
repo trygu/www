@@ -137,6 +137,13 @@
       border-radius: 4px;
       border: 1px solid var(--preview-border);
     }
+    /* table view */
+    #tableView { margin-top: 1rem; overflow: auto; }
+    table#tracksTable { width: 100%; border-collapse: collapse; background: var(--preview-bg); color: var(--fg); }
+    table#tracksTable th, table#tracksTable td { padding: 0.5rem; border-bottom: 1px solid var(--preview-border); text-align: left; font-size: 0.95rem; }
+    table#tracksTable th { color: var(--primary); font-weight: 700; position: sticky; top: 0; background: linear-gradient(180deg, rgba(0,0,0,0.06), transparent); }
+    table#tracksTable tr:hover td { filter: brightness(1.05); }
+    .thumb-sm { width: 48px; height: 48px; object-fit: cover; border-radius: 4px; display:block; }
     @media (max-width: 600px) {
       body { margin: 1rem; }
     }
@@ -163,11 +170,28 @@
     <label style="display:block; margin-top:0.6rem; font-weight:400;">
       <input id="includeArtwork" type="checkbox" /> Include artwork URLs and thumbnails
     </label>
+    <label style="display:block; margin-top:0.25rem; font-weight:400;">
+      <input id="showTableView" type="checkbox" checked /> Show table view
+    </label>
     <div id="error" class="error" aria-live="polite"></div>
   </div>
 
   <button id="downloadBtn" style="display:none;">Download CSV</button>
   <div id="preview" aria-label="CSV Preview" hidden></div>
+  <div id="tableView" hidden aria-label="Tracks table">
+    <table id="tracksTable" aria-live="polite">
+      <thead>
+        <tr>
+          <th>Artwork</th>
+          <th>Artist</th>
+          <th>Title</th>
+          <th>Album</th>
+          <th>Date Added</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
   <div id="gallery" hidden aria-label="Artwork thumbnails"></div>
   <button id="copyRedirectBtn" style="display:none; margin-top:0.6rem; font-size:0.85rem; padding:0.25rem 0.5rem; border-radius:4px; border:1px solid var(--input-border); background:transparent; color:var(--fg);">Copy redirect URI</button>
 
