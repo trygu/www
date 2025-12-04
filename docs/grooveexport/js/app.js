@@ -170,26 +170,55 @@ async function login() {
 
 // === SPOTIFY API ===
 function extractPlaylistId(input) {
-  const urlMatch = input.match(/playlist\/([a-zA-Z0-9]+)(\?|$)/);
+  // Support full URLs, query-string variants, and spotify:playlist: URIs
+  const urlMatch = input.match(/playlist\/([a-zA-Z0-9]+)(\?|$)/) || input.match(/spotify:playlist:([a-zA-Z0-9]+)/);
   if (urlMatch) return urlMatch[1];
   const idMatch = input.match(/^([a-zA-Z0-9]{22,})$/);
   if (idMatch) return idMatch[1];
   return null;
 }
 
+async function fetchPlaylistExistsViaOEmbed(playlistId) {
+  // Public endpoint that doesn't require OAuth — used as a lightweight existence check.
+  // Returns oEmbed JSON on success, throws on network/CORS errors or non-2xx responses.
+  const url = `https://open.spotify.com/oembed?url=https://open.spotify.com/playlist/${playlistId}`;
+  const resp = await fetch(url);
+  if (!resp.ok) throw new Error(`oEmbed check failed: HTTP ${resp.status}`);
+  return await resp.json();
+}
+
 async function fetchPlaylistTracks(token, playlistId) {
   let url = `https://api.spotify.com/v1/playlists/${playlistId}/tracks?limit=100`;
   let items = [];
-  while (url) {
-    const resp = await fetch(url, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    if (!resp.ok) throw new Error("Could not fetch playlist");
-    const data = await resp.json();
-    items = items.concat(data.items);
-    url = data.next;
+  try {
+    while (url) {
+      const resp = await fetch(url, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!resp.ok) {
+        // If 404, attempt a friendly diagnostic via the public oEmbed endpoint
+        if (resp.status === 404) {
+          try {
+            await fetchPlaylistExistsViaOEmbed(playlistId);
+            // oEmbed succeeded — playlist exists on open.spotify.com but the Web API returned 404.
+            throw new Error("Spotify Web API returned 404 for this playlist, but it appears on open.spotify.com. This commonly happens when the playlist is private/hidden or restricted to its owner and not accessible via the Web API. Try signing in as the playlist owner or check playlist visibility/settings.");
+          } catch (oembedErr) {
+            // oEmbed failed too — surface the original 404 plus a hint
+            throw new Error(`Playlist not found (API 404). Also attempted public existence check which failed: ${oembedErr.message}`);
+          }
+        }
+        const text = await resp.text();
+        throw new Error(`Could not fetch playlist (HTTP ${resp.status}): ${text}`);
+      }
+      const data = await resp.json();
+      items = items.concat(data.items);
+      url = data.next;
+    }
+    return items;
+  } catch (err) {
+    // Re-throw so callers handle/display the message consistently
+    throw err;
   }
-  return items;
 }
 
 // Fetch and display the current user's profile (avatar + display name)
