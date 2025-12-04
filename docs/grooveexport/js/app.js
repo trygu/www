@@ -444,11 +444,39 @@ if (!clientId || clientId === CLIENT_PLACEHOLDER) {
   };
 }
 
-// Start auth redirect handling and login check
-handleAuthRedirect().then(() => {
-  try {
-    checkLogin();
-  } catch (err) {
-    console.error("checkLogin failed:", err);
-  }
+// Global error handlers — surface errors in the UI so app doesn't silently hang
+window.addEventListener("error", (ev) => {
+  const err = ev.error || ev.message || "Unknown error";
+  console.error("Window error:", err, ev);
+  statusEl.textContent = "An error occurred";
+  errorEl.textContent = (ev.error && ev.error.message) || ev.message || String(err);
+  loginBtn.disabled = false;
 });
+window.addEventListener("unhandledrejection", (ev) => {
+  console.error("Unhandled rejection:", ev.reason);
+  statusEl.textContent = "An error occurred";
+  errorEl.textContent = ev.reason && ev.reason.message ? ev.reason.message : String(ev.reason);
+  loginBtn.disabled = false;
+});
+
+// Init sequence: attempt to handle auth redirect, then check login state.
+// If anything throws, show the error and re-enable the login button so the user can retry.
+(async function init() {
+  try {
+    statusEl.textContent = "Checking login …";
+    // handleAuthRedirect may redirect the page; if it returns, continue
+    await handleAuthRedirect();
+    const logged = await checkLogin();
+    if (!logged) {
+      statusEl.textContent = "Not logged in.";
+      loginBtn.disabled = false;
+    } else {
+      loginBtn.disabled = false; // keep it enabled if you want to re-login
+    }
+  } catch (err) {
+    console.error("Initialization error:", err);
+    statusEl.textContent = "Initialization error";
+    errorEl.textContent = err && err.message ? err.message : String(err);
+    loginBtn.disabled = false;
+  }
+})();
