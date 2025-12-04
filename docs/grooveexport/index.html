@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>GrooveExport — Spotify Playlist Export</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #181a20;
+      --fg: #f1f3f6;
+      --primary: #1db954;
+      --secondary: #23272f;
+      --border: #333842;
+      --error: #ff5370;
+      --input-bg: #23272f;
+      --input-border: #333842;
+      --input-fg: #f1f3f6;
+      --preview-bg: #23272f;
+      --preview-border: #333842;
+      --button-bg: #1db954;
+      --button-fg: #181a20;
+      --button-hover: #1ed760;
+    }
+    html, body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+    body {
+      margin: 2rem auto;
+      max-width: 800px;
+    }
+    h1 {
+      font-size: 1.6rem;
+      margin-bottom: 0.5rem;
+      color: var(--primary);
+    }
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: 600;
+      color: var(--fg);
+    }
+    input, button, textarea {
+      font: inherit;
+      border-radius: 4px;
+      border: 1px solid var(--input-border);
+      outline: none;
+      transition: border 0.2s;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 0.4rem;
+      margin-top: 0.3rem;
+      background: var(--input-bg);
+      color: var(--input-fg);
+      border: 1px solid var(--input-border);
+    }
+    input[type="text"]:focus {
+      border-color: var(--primary);
+    }
+    button {
+      padding: 0.4rem 0.8rem;
+      margin-top: 0.6rem;
+      cursor: pointer;
+      background: var(--button-bg);
+      color: var(--button-fg);
+      border: none;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      filter: grayscale(20%);
+    }
+    button:hover, button:focus {
+      background: var(--button-hover);
+    }
+    #status {
+      margin: 0.5rem 0 1rem 0;
+      font-size: 0.95rem;
+      opacity: 0.85;
+      color: var(--primary);
+    }
+    #preview {
+      white-space: pre;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      border: 1px solid var(--preview-border);
+      padding: 0.5rem;
+      margin-top: 1rem;
+      max-height: 300px;
+      overflow: auto;
+      background: var(--preview-bg);
+      color: var(--fg);
+    }
+    .error {
+      color: var(--error);
+      margin-top: 0.5rem;
+      font-size: 0.95rem;
+      overflow-wrap: anywhere;
+    }
+    .row {
+      margin-top: 1rem;
+    }
+    ::selection {
+      background: var(--primary);
+      color: var(--bg);
+    }
+    @media (max-width: 600px) {
+      body { margin: 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <h1>GrooveExport</h1>
+  <p>Sign in with Spotify, paste a playlist URL or ID, and download CSV.</p>
+
+  <div id="status">Checking login …</div>
+  <button id="loginBtn">Sign in with Spotify</button>
+  <button id="logoutBtn" style="display:none; margin-left:0.5rem;">Sign out</button>
+
+  <div class="row">
+    <label for="playlistInput">Playlist URL or ID</label>
+    <input id="playlistInput" type="text"
+           placeholder="Example: https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M or 37i9dQZF1DXcBWIGoYBM5M" autocomplete="off" />
+    <button id="loadBtn">Fetch and Generate CSV</button>
+    <div id="error" class="error" aria-live="polite"></div>
+  </div>
+
+  <button id="downloadBtn" style="display:none;">Download CSV</button>
+  <div id="preview" aria-label="CSV Preview" hidden></div>
+  <button id="copyRedirectBtn" style="display:none; margin-top:0.6rem; font-size:0.85rem; padding:0.25rem 0.5rem; border-radius:4px; border:1px solid var(--input-border); background:transparent; color:var(--fg);">Copy redirect URI</button>
+
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>
