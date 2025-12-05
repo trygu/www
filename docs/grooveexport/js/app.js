@@ -27,6 +27,7 @@ const galleryEl = document.getElementById("gallery");
 const showTableView = document.getElementById("showTableView");
 const tableView = document.getElementById("tableView");
 const tracksTableBody = document.querySelector("#tracksTable tbody");
+const tracksTableHead = document.querySelector("#tracksTable thead tr"); // new: optional thead row for adding Genre header
 
 // === PKCE helper functions ===
 async function sha256(plain) {
@@ -264,6 +265,21 @@ function clearTable() {
 function renderTable(tracks) {
   if (!tracksTableBody) return;
   clearTable();
+
+  // Ensure table header includes "Genre" (if there is a thead row present)
+  if (tracksTableHead) {
+    const headings = Array.from(tracksTableHead.children).map(h => h.textContent.trim());
+    const hasGenre = headings.some(h => h.toLowerCase() === "genre");
+    if (!hasGenre) {
+      const th = document.createElement("th");
+      th.textContent = "Genre";
+      // Try to insert after "Artist" if present, otherwise append
+      const artistIdx = headings.indexOf("Artist");
+      const insertPos = artistIdx >= 0 ? artistIdx + 1 : tracksTableHead.children.length;
+      tracksTableHead.insertBefore(th, tracksTableHead.children[insertPos] || null);
+    }
+  }
+
   for (const item of tracks) {
     const t = item.track || {};
     const tr = document.createElement("tr");
@@ -295,6 +311,10 @@ function renderTable(tracks) {
     const tdArtist = document.createElement("td");
     tdArtist.textContent = (t.artists || []).map(a => a.name).join(", ");
 
+    // Genre (from enrichment)
+    const tdGenre = document.createElement("td");
+    tdGenre.textContent = item._genres || "";
+
     // Title (link to Spotify if available)
     const tdTitle = document.createElement("td");
     if (t.external_urls?.spotify) {
@@ -318,6 +338,7 @@ function renderTable(tracks) {
 
     tr.appendChild(tdArt);
     tr.appendChild(tdArtist);
+    tr.appendChild(tdGenre); // inserted after Artist
     tr.appendChild(tdTitle);
     tr.appendChild(tdAlbum);
     tr.appendChild(tdDate);
@@ -329,8 +350,8 @@ function renderTable(tracks) {
 // --- Restored: CSV generation, UI handlers, init ---
 
 function tracksToCSV(tracks) {
-  // Always include artwork URL column (select largest available image)
-  const header = ["Artist", "Title", "Album", "Date Added", "Artwork URL"];
+  // Include Genre column after Title
+  const header = ["Artist", "Title", "Genre", "Album", "Date Added", "Artwork URL"];
   const rows = tracks.map(item => {
     const t = item.track || {};
     let artwork = "";
@@ -344,9 +365,11 @@ function tracksToCSV(tracks) {
       }, null);
       artwork = best?.url || "";
     }
+    const genre = item._genres || "";
     const cols = [
       (t.artists || []).map(a => a.name).join(", "),
       t.name || "",
+      genre,
       t.album?.name || "",
       item.added_at ? item.added_at.slice(0, 10) : "",
       artwork
@@ -382,6 +405,15 @@ async function handleLoad() {
   try {
     const tracks = await fetchPlaylistTracks(tokenObj.access_token, playlistId);
     if (!tracks.length) throw new Error("No tracks found.");
+
+    // Enrich tracks with genres before generating CSV / rendering table
+    try {
+      await enrichTracksWithGenres(tokenObj.access_token, tracks);
+    } catch (err) {
+      // Non-fatal: continue but log; leave item._genres empty for failed fetches
+      console.warn("Could not fetch artist genres:", err);
+      for (const item of tracks) if (!item._genres) item._genres = "";
+    }
 
     const csv = tracksToCSV(tracks);
 
