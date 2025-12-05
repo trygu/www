@@ -255,12 +255,14 @@ async function fetchArtistsGenres(token, artistIds) {
 }
 
 // Nytt: berik tracks med kombinert/unik genre-string på item._genres
+// Erstatt eksisterende enrichTracksWithGenres med denne versjonen som bruker getArtistId
 async function enrichTracksWithGenres(token, tracks) {
   const artistIds = new Set();
   for (const item of tracks) {
     const artists = item.track?.artists || [];
     for (const a of artists) {
-      if (a?.id) artistIds.add(a.id);
+      const id = getArtistId(a);
+      if (id) artistIds.add(id);
     }
   }
   if (!artistIds.size) {
@@ -275,11 +277,33 @@ async function enrichTracksWithGenres(token, tracks) {
     const artists = item.track?.artists || [];
     const gset = new Set();
     for (const a of artists) {
-      const gs = genresMap[a.id] || [];
+      const id = getArtistId(a);
+      const gs = id ? (genresMap[id] || []) : [];
       for (const g of gs) gset.add(g);
     }
     item._genres = Array.from(gset).join(", ");
   }
+}
+
+// Ny helper: hent artist-id fra ulike felter hvis id mangler
+function getArtistId(artist) {
+  if (!artist) return null;
+  if (artist.id) return artist.id;
+  if (typeof artist.uri === "string") {
+    const m = artist.uri.match(/spotify:artist:([A-Za-z0-9]+)/);
+    if (m) return m[1];
+  }
+  if (typeof artist.href === "string") {
+    const m = artist.href.match(/artists\/([A-Za-z0-9]+)/);
+    if (m) return m[1];
+  }
+  if (artist.external_urls?.spotify) {
+    const m = artist.external_urls.spotify.match(/artist\/([A-Za-z0-9]+)$/);
+    if (m) return m[1];
+    const m2 = artist.external_urls.spotify.match(/\/artist\/([A-Za-z0-9]+)/);
+    if (m2) return m2[1];
+  }
+  return null;
 }
 
 // Fetch and display the current user's profile (avatar + display name)
