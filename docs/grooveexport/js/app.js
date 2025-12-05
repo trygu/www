@@ -222,6 +222,66 @@ async function fetchPlaylistTracks(token, playlistId) {
   }
 }
 
+// Nytt: cache + hent artist-sjangre i batch (opptil 50 ids per kall)
+const _artistGenreCache = new Map();
+async function fetchArtistsGenres(token, artistIds) {
+  const result = {};
+  const toFetch = [];
+  for (const id of artistIds) {
+    if (_artistGenreCache.has(id)) {
+      result[id] = _artistGenreCache.get(id);
+    } else {
+      toFetch.push(id);
+    }
+  }
+
+  while (toFetch.length) {
+    const batch = toFetch.splice(0, 50);
+    const url = `https://api.spotify.com/v1/artists?ids=${batch.join(",")}`;
+    const resp = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+    if (!resp.ok) {
+      const text = await resp.text();
+      throw new Error(`Could not fetch artist info (HTTP ${resp.status}): ${text}`);
+    }
+    const data = await resp.json();
+    for (const artist of data.artists || []) {
+      const genres = Array.isArray(artist.genres) ? artist.genres : [];
+      _artistGenreCache.set(artist.id, genres);
+      result[artist.id] = genres;
+    }
+  }
+
+  return result;
+}
+
+// Nytt: berik tracks med kombinert/unik genre-string på item._genres
+async function enrichTracksWithGenres(token, tracks) {
+  const artistIds = new Set();
+  for (const item of tracks) {
+    const artists = item.track?.artists || [];
+    for (const a of artists) {
+      if (a?.id) artistIds.add(a.id);
+    }
+  }
+  if (!artistIds.size) {
+    for (const item of tracks) item._genres = "";
+    return;
+  }
+
+  const ids = Array.from(artistIds);
+  const genresMap = await fetchArtistsGenres(token, ids);
+
+  for (const item of tracks) {
+    const artists = item.track?.artists || [];
+    const gset = new Set();
+    for (const a of artists) {
+      const gs = genresMap[a.id] || [];
+      for (const g of gs) gset.add(g);
+    }
+    item._genres = Array.from(gset).join(", ");
+  }
+}
+
 // Fetch and display the current user's profile (avatar + display name)
 async function fetchUserProfile(token) {
   try {
