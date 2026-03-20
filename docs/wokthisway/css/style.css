@@ -100,7 +100,7 @@ header p {
     min-width: 0;
     border: 1.5px solid #E8772E;
     transition: box-shadow 0.22s cubic-bezier(.4,1.4,.6,1), border-color 0.22s, outline 0.22s;
-    max-width: 220px;
+    max-width: clamp(120px, 24vw, 180px);
     margin: 0 0 0 0;
 }
 .book-image-wrapper:hover,
@@ -117,8 +117,8 @@ header p {
     border: none;
     background: none;
     margin: 0;
-    max-width: 200px;
-    min-width: 120px;
+    max-width: clamp(120px, 20vw, 160px);
+    min-width: 90px;
     width: 100%;
     display: block;
     transition: box-shadow 0.18s;
