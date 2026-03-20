@@ -401,12 +401,12 @@ function renderTable(tracks) {
 
     // Title (link to Spotify if available)
     const tdTitle = document.createElement("td");
-    if (t.external_urls?.spotify) {
+      if (t.external_urls?.spotify) {
       const a = document.createElement("a");
       a.href = t.external_urls.spotify;
       a.textContent = t.name || "";
       a.target = "_blank";
-      a.rel = "noopener noreferrer";
+      a.rel = "noopener";
       tdTitle.appendChild(a);
     } else {
       tdTitle.textContent = t.name || "";
