@@ -17,12 +17,24 @@ body::before {
     z-index: 0;
     pointer-events: none;
 }
+
+:root {
+    --space-xs: 6px;
+    --space-sm: 12px;
+    --space-md: 18px;
+    --space-lg: 24px;
+    --space-xl: 40px;
+    --container-padding: 32px;
+    --container-radius: 18px;
+    --gap-lg: 48px;
+    --gap-md: 24px;
+}
 .container {
     max-width: 760px;
-    margin: 40px auto 40px auto;
-    padding: 38px 36px;
+    margin: var(--space-xl) auto;
+    padding: var(--container-padding);
     background-color: #fff;
-    border-radius: 18px;
+    border-radius: var(--container-radius);
     box-shadow: 0 8px 32px rgba(0,0,0,0.10), 0 1.5px 6px rgba(232,119,46,0.08);
 }
 @media (max-width: 900px) {
@@ -35,11 +47,11 @@ header {
     background: none;
     color: #4A4A4A;
     text-align: center;
-    margin-bottom: 24px;
+    margin-bottom: var(--space-lg);
     position: relative;
 }
 header h1 {
-    margin: 0 0 8px 0;
+    margin: 0 0 var(--space-xs) 0;
     font-size: 2.7rem;
     letter-spacing: 1px;
     color: #2d1c0b;
@@ -58,7 +70,7 @@ header p {
     text-shadow: 0 1px 2px rgba(255,255,255,0.45), 0 2px 8px rgba(208,99,26,0.08);
 }
 .book-section {
-    margin-bottom: 32px;
+    margin-bottom: var(--space-lg);
     background: linear-gradient(120deg, #fbeee0 0%, #fff 100%);
     box-shadow: 0 8px 32px rgba(0,0,0,0.07), 0 1.5px 6px rgba(232,119,46,0.06);
     position: relative;
@@ -73,15 +85,15 @@ header p {
 }
 .book-flex {
     display: flex;
-    gap: 48px;
+    gap: var(--gap-lg);
     align-items: flex-start;
     flex-wrap: wrap;
 }
 .book-image-wrapper {
     background: #fff;
-    border-radius: 18px;
+    border-radius: var(--container-radius);
     box-shadow: 0 4px 18px rgba(232,119,46,0.10), 0 1.5px 6px rgba(0,0,0,0.06);
-    padding: 8px;
+    padding: var(--space-sm);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -124,7 +136,7 @@ header p {
 }
 .book-title {
     font-size: 2rem;
-    margin: 0 0 18px 0;
+    margin: 0 0 var(--space-md) 0;
     font-family: 'Georgia', serif;
     color: #2d1c0b;
     letter-spacing: 0.5px;
@@ -133,14 +145,14 @@ header p {
     font-size: 1.08rem;
     line-height: 1.8;
     color: #333;
-    margin-bottom: 18px;
+    margin-bottom: var(--space-md);
 }
 .book-info ul {
     margin: 0 0 1.2em 20px;
     padding-left: 0;
 }
 .amazon-link-wrapper {
-    margin-top: 24px;
+    margin-top: var(--space-md);
     display: flex;
     justify-content: flex-start;
 }
@@ -177,7 +189,7 @@ header p {
     outline: none;
 }
 .no-rice {
-    margin-top: 18px;
+    margin-top: var(--space-md);
     font-style: italic;
     color: #D0631A;
     font-size: 1.13rem;
@@ -189,8 +201,8 @@ header p {
     font-weight: 500;
 }
 .content-section {
-    margin-top: 32px;
-    padding: 24px 18px;
+    margin-top: var(--space-lg);
+    padding: var(--space-md) var(--space-sm);
     background-color: #FDFBF5;
     border-left: 5px solid #E8772E;
     border-radius: 10px;
@@ -207,7 +219,7 @@ ul {
 }
 footer {
     text-align: center;
-    padding: 18px 0 8px 0;
+    padding: var(--space-md) 0 var(--space-sm) 0;
     background: none;
     color: #888;
     font-size: 0.98rem;
@@ -216,7 +228,7 @@ footer {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
+    gap: var(--space-xs);
 }
 .footer-email {
     margin: 0;
@@ -234,8 +246,8 @@ footer {
 }
 .main-nav {
     position: absolute;
-    top: 24px;
-    right: 32px;
+    top: var(--space-lg);
+    right: var(--space-lg);
     z-index: 10;
 }
 .menu-toggle {
@@ -244,8 +256,8 @@ footer {
     cursor: pointer;
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    padding: 8px;
+    gap: var(--space-xs);
+    padding: var(--space-sm);
     border-radius: 6px;
     transition: background 0.15s;
 }
@@ -267,7 +279,7 @@ footer {
     margin: 0;
     padding: 0;
     position: absolute;
-    top: 44px;
+    top: calc(var(--space-lg) + 8px);
     right: 0;
     background: #fff;
     border-radius: 10px;
@@ -298,7 +310,7 @@ footer {
 }
 .nav-list a {
     display: block;
-    padding: 14px 22px;
+    padding: 12px 22px;
     color: #D0631A;
     text-decoration: none;
     font-size: 1.08rem;
@@ -356,7 +368,7 @@ footer {
 }
 @media (max-width: 900px) {
     .book-flex {
-        gap: 24px;
+        gap: var(--gap-md);
     }
 }
 @media (max-width: 700px) {
@@ -369,6 +381,41 @@ footer {
         gap: 18px;
         align-items: stretch;
     }
+}
+
+/* Allow wider container on pages that opt-in */
+.container--wide {
+    max-width: 980px;
+}
+
+/* Shop grid: use column layout to avoid large vertical gaps (masonry-like flow) */
+.shop-grid {
+    columns: 1;
+    column-gap: var(--gap-lg);
+}
+
+/* Keep each section intact inside columns */
+.shop-grid .content-section {
+    display: inline-block;
+    width: 100%;
+    margin-top: 0;
+    margin-bottom: var(--gap-md);
+    -webkit-column-break-inside: avoid;
+    break-inside: avoid-column;
+}
+
+@media (min-width: 700px) {
+    .shop-grid {
+        columns: 2;
+    }
+}
+
+.disclosure {
+    text-align: center;
+    font-size: 0.9rem;
+    color: #777;
+    margin-top: 12px;
+}
     .book-image-wrapper {
         max-width: 90vw;
         margin: 0 auto 12px auto;

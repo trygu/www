@@ -4,28 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wok This Way – A Keto Journey Through Asia</title>
-    <meta name="description" content="Discover 'Wok This Way' – a keto-friendly Asian cookbook filled with low-carb recipes, from ramen to dumplings, that bring joy and flavor to your table. Perfect for keto enthusiasts and food lovers alike!">
+    <meta name="description" content="Keto-friendly Asian recipes — low-carb ramen, dumplings, sauces, and weeknight meals.">
     <link rel="icon" href="../favicon.ico" type="image/x-icon">
     <link rel="icon" href="../favicon-16.png" type="image/png" sizes="16x16">
     <link rel="icon" href="../favicon-32.png" type="image/png" sizes="32x32">
     <link rel="icon" href="../favicon-48.png" type="image/png" sizes="48x48">
     <link rel="stylesheet" href="css/style.css">
-    <script>
-        // Simple menu toggle for sandwich menu
-        document.addEventListener('DOMContentLoaded', function() {
-            var menuToggle = document.querySelector('.menu-toggle');
-            var nav = document.querySelector('.main-nav');
-            menuToggle.addEventListener('click', function() {
-                nav.classList.toggle('open');
-            });
-            // Optional: close menu when clicking outside
-            document.addEventListener('click', function(e) {
-                if (!nav.contains(e.target) && nav.classList.contains('open')) {
-                    nav.classList.remove('open');
-                }
-            });
-        });
-    </script>
     <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -46,16 +30,15 @@
 <body>
     <header>
         <h1>Wok This Way</h1>
-        <p>A Keto Journey Through Asia: Low-Carb Lunches, Dinners & Dumplings That Don't Suck</p>
-        <nav class="main-nav">
-            <button class="menu-toggle" aria-label="Open menu">
+        <p class="subtitle">Keto Asian recipes — low-carb ramen, dumplings & weeknight meals.</p>
+        <nav class="main-nav" role="navigation" aria-label="Primary navigation">
+            <button class="menu-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="primary-nav">
                 <span class="menu-bar"></span>
                 <span class="menu-bar"></span>
                 <span class="menu-bar"></span>
             </button>
-            <ul class="nav-list">
-                <li><a href="#bonus-recipes">Bonus Recipes</a></li>
-                <li><a href="#recommended-products">Recommended Products</a></li>
+            <ul id="primary-nav" class="nav-list">
+                <li><a href="recommended-products/">Recommended Products</a></li>
             </ul>
         </nav>
     </header>
@@ -64,27 +47,26 @@
         <section class="container book-section">
             <div class="book-flex">
                 <div class="book-image-wrapper">
-                    <a href="https://www.amazon.com/dp/B0F3P4BPRZ" target="_blank" rel="noopener" aria-label="Buy Wok This Way on Amazon">
-                        <img src="../images/wokthisway.jpeg" alt="Wok This Way – Keto Asian Cookbook Cover" class="book-cover" loading="lazy">
+                    <a href="https://www.amazon.com/dp/B0F3P4BPRZ" target="_blank" rel="noopener noreferrer" aria-label="Buy Wok This Way on Amazon">
+                        <img src="../images/wokthisway.jpeg" alt="Wok This Way – Keto Asian Cookbook cover" class="book-cover" loading="lazy">
                     </a>
                 </div>
                 <article class="book-info">
                     <h2 class="book-title">About the Book</h2>
                     <div class="book-description">
-                        <p>Forget the bacon-wrapped clichés and bulletproof coffee. <strong>Wok This Way</strong> is a warm, practical, and flavor-loving keto cookbook inspired by the kitchens of East Asia — from comforting bowls of kimchi jjigae and sukiyaki to everyday ramen, tofu hotpots, and chili crisp eggs that somehow make everything better.</p>
-                        <p>Written by someone who actually lives this way, this book is built on real food and real habits: chicken thighs, shirataki noodles, fermented heat, umami-rich sauces, and broths that carry you through long days and quiet nights. Whether you're practicing intermittent fasting, doing OMAD, or just trying to eat well without giving up joy — this book is here for it.</p>
+                        <p><strong>Wok This Way</strong> delivers flavor-forward, keto-friendly recipes inspired by East Asian kitchens—brothy ramens, hotpots, dumplings, and umami-rich sauces. Practical swaps and clear techniques make low-carb cooking approachable for everyday life.</p>
                         <ul>
-                            <li>Keto-friendly ramen (brothy and dry-style), stir-fries, soups, and hotpots</li>
-                            <li>Dumplings wrapped in napa cabbage or pak choi — no flour needed</li>
-                            <li>Sauces and sides that turn basic into craveable</li>
-                            <li>Smart, no-nonsense swaps that still deliver big flavor</li>
-                            <li>A lived-in approach to keto, fasting, and finding what works for you</li>
+                            <li>Brothy and dry-style keto ramen</li>
+                            <li>Dumplings using napa or pak choi wrappers</li>
+                            <li>Sauces and sides that boost flavor</li>
+                            <li>Smart swaps that keep carbs low</li>
+                            <li>Practical guidance for keto and intermittent fasting</li>
                         </ul>
-                        <p class="no-rice">No rice. No guilt. No pressure. Just food that feels good — and tastes even better.</p>
+                        <p class="no-rice">No rice. No guilt. Just good food.</p>
                     </div>
                     <div class="amazon-link-wrapper">
-                        <a href="https://www.amazon.com/dp/B0F3P4BPRZ" target="_blank" rel="noopener" class="amazon-link">
-                            Get Your Copy on Amazon
+                        <a href="https://www.amazon.com/dp/B0F3P4BPRZ" target="_blank" rel="noopener noreferrer" class="amazon-link">
+                            Buy on Amazon
                         </a>
                     </div>
                 </article>
@@ -94,8 +76,27 @@
 
     <footer>
         <div class="footer-content">
-            <p class="footer-email"><a href="mailto:post@falch.me">Trygve Falch</a> © 2025 Wok This Way. All Rights Reserved.</p>
+            <p class="footer-email"><a href="mailto:post@falch.me">Trygve Tatsuya Falch</a> © 2026 Wok This Way. All Rights Reserved.</p>
         </div>
     </footer>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var menuToggle = document.querySelector('.menu-toggle');
+        var nav = document.querySelector('.main-nav');
+        if (!menuToggle || !nav) return;
+        menuToggle.addEventListener('click', function () {
+            var expanded = this.getAttribute('aria-expanded') === 'true';
+            this.setAttribute('aria-expanded', String(!expanded));
+            nav.classList.toggle('open');
+        });
+        document.addEventListener('click', function (e) {
+            if (!nav.contains(e.target) && nav.classList.contains('open')) {
+                nav.classList.remove('open');
+                menuToggle.setAttribute('aria-expanded', 'false');
+            }
+        });
+    });
+    </script>
 </body>
 </html>
