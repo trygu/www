@@ -214,6 +214,12 @@ header p {
     font-size: 1.3rem;
     letter-spacing: 0.5px;
 }
+/* Ensure lists inside the highlighted content boxes have enough left spacing
+   so markers don't collide with the left border */
+.content-section ul {
+    margin: 0 0 0 0;
+    padding-left: 26px;
+}
 ul {
     margin: 0 0 0 18px;
 }
