@@ -1,8 +1,18 @@
 title: Wok This Way
 description: A Keto Journey Through Asia
+author: Trygve Tatsuya Falch
+email: post@falch.me
+amazon: https://www.amazon.com/dp/B0F3P4BPRZ
 markdown: kramdown
-theme: minima
+
 collections:
   recipes:
     output: true
     permalink: /wokthisway/recipes/:name/
+
+defaults:
+  - scope:
+      path: ""
+      type: recipes
+    values:
+      layout: recipe

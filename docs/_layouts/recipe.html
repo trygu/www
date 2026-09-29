@@ -1,0 +1,18 @@
+---
+layout: base
+---
+
+<article class="container container--wide">
+    {% if page.image %}
+    <div class="polaroid polaroid--center">
+        <img src="{{ page.image }}" alt="{{ page.title }}" loading="lazy">
+        {% if page.caption %}
+        <div class="caption">{{ page.caption }}</div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <h2 class="book-title">{{ page.title }}</h2>
+
+    {{ content }}
+</article>

@@ -14,7 +14,7 @@ body::before {
     background: url('../../images/wokthisway-notext.jpeg') center center/cover no-repeat;
     opacity: 0.67;
     filter: blur(13px) brightness(1.04) grayscale(0.08);
-    z-index: 0;
+    z-index: -1;
     pointer-events: none;
 }
 
@@ -422,6 +422,7 @@ footer {
     color: #777;
     margin-top: 12px;
 }
+@media (max-width: 700px) {
     .book-image-wrapper {
         max-width: 90vw;
         margin: 0 auto 12px auto;
@@ -444,4 +445,54 @@ footer {
     .nav-list a {
         padding: 12px 14px;
     }
+}
+
+.recipe-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.recipe-grid li {
+    flex: 1 1 calc(33.333% - 20px);
+    box-sizing: border-box;
+}
+
+.recipe-grid a {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+}
+
+.recipe-grid h3 {
+    text-align: center;
+    font-size: 1.2em;
+    margin-top: 10px;
+}
+
+.polaroid--center {
+    display: block;
+    margin: 0 auto var(--gap-md);
+}
+
+.recipe-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0 0 var(--space-lg);
+    font-size: 1rem;
+}
+
+.recipe-table th {
+    text-align: left;
+    color: #D0631A;
+    border-bottom: 2px solid #E8772E;
+    padding: 6px 10px;
+}
+
+.recipe-table td {
+    padding: 6px 10px;
+    border-bottom: 1px solid #fbeee0;
 }

@@ -5,21 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Recommended Products — Wok This Way</title>
   <meta name="description" content="Recommended kitchen tools, pantry items and products used in Wok This Way.">
-  <link rel="stylesheet" href="../css/style.css">
+  <link rel="icon" href="/favicon-16.png" type="image/png" sizes="16x16">
+  <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32">
+  <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48">
+  <link rel="stylesheet" href="/wokthisway/css/style.css">
 </head>
 <body>
   <header>
     <h1>Wok This Way</h1>
     <p class="subtitle">Keto Asian recipes — low-carb ramen, dumplings &amp; weeknight meals.</p>
-    <nav class="main-nav" role="navigation" aria-label="Primary navigation">
+    <nav class="main-nav" aria-label="Primary navigation">
       <button class="menu-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="primary-nav">
         <span class="menu-bar"></span>
         <span class="menu-bar"></span>
         <span class="menu-bar"></span>
       </button>
       <ul id="primary-nav" class="nav-list">
-        <li><a href="../">Back to Book</a></li>
-        <li><a href="../recommended-products/">Recommended Products</a></li>
+        <li><a href="/wokthisway/">The Book</a></li>
+        <li><a href="/wokthisway/recipes/">Recipes</a></li>
       </ul>
     </nav>
   </header>
@@ -29,8 +32,6 @@
       <article class="book-info">
         <h2 class="book-title">The Keto-Asian Shop</h2>
         <p>Building a keto-friendly Asian pantry is about finding the right anchors. This is the gear and the ingredients I actually use in my kitchen to keep things fast, low-carb, and full of soul.</p>
-
-        
 
         <div class="shop-grid">
         <div class="content-section" id="cooking-gear">
@@ -100,8 +101,8 @@
 
           <h4>Why these sweeteners?</h4>
           <p>In <em>Wok This Way</em> I often used Sukrin Gold because it's easy to find in Europe. When shopping on Amazon, however, <strong>Allulose</strong> and <strong>Monkfruit blends</strong> are the best options for Asian cooking.</p>
-            <p><strong>Allulose</strong> is a game-changer for keto-glazed dishes. While regular erythritol (like Sukrin) can crystallize in cold sauces, Allulose dissolves completely and can even caramelize — the secret to a glossy finish on dishes like <em>Miso-Glazed Salmon</em>.</p>
-            <p><strong>Monkfruit &amp; Erythritol blends</strong> (e.g., Lakanto) give a clean, neutral sweetness. They work excellently to balance salt and heat in a dashi or a quick stir-fry sauce without leaving a dominant aftertaste.</p>
+          <p><strong>Allulose</strong> is a game-changer for keto-glazed dishes. While regular erythritol (like Sukrin) can crystallize in cold sauces, Allulose dissolves completely and can even caramelize — the secret to a glossy finish on dishes like <em>Miso-Glazed Salmon</em>.</p>
+          <p><strong>Monkfruit &amp; Erythritol blends</strong> (e.g., Lakanto) give a clean, neutral sweetness. They work excellently to balance salt and heat in a dashi or a quick stir-fry sauce without leaving a dominant aftertaste.</p>
           <ul>
             <li><strong><a href="https://www.amazon.com/s?k=white+miso+paste+shiro&tag=wokthisway05-20" target="_blank" rel="noopener">White Miso Paste (Shiro Miso)</a></strong> — mellow and slightly sweet; great for miso-glazed salmon and creamy ramen.</li>
             <li><strong><a href="https://www.amazon.com/s?k=allulose+sweetener&tag=wokthisway05-20" target="_blank" rel="noopener">Allulose Sweetener</a></strong> — dissolves and caramelizes, ideal for sticky glazes without cooling aftertaste.</li>
@@ -145,25 +146,6 @@
     <p class="disclosure">Disclosure: As an Amazon Associate, I earn from qualifying purchases. This helps support the creation of more keto recipes!</p>
   </footer>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      var menuToggle = document.querySelector('.menu-toggle');
-      var nav = document.querySelector('.main-nav');
-      if (!menuToggle || !nav) return;
-      menuToggle.addEventListener('click', function () {
-        var expanded = this.getAttribute('aria-expanded') === 'true';
-        this.setAttribute('aria-expanded', String(!expanded));
-        nav.classList.toggle('open');
-      });
-      document.addEventListener('click', function (e) {
-        if (!nav.contains(e.target) && nav.classList.contains('open')) {
-          nav.classList.remove('open');
-          menuToggle.setAttribute('aria-expanded', 'false');
-        }
-      });
-
-    });
-  </script>
-
+  <script src="/wokthisway/js/nav.js"></script>
 </body>
 </html>

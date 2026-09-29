@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if page.title %}{{ page.title }} – Wok This Way{% else %}{{ site.title }} – {{ site.description }}{% endif %}</title>
+    <meta name="description" content="{% if page.description %}{{ page.description }}{% else %}{{ site.description }}{% endif %}">
+    <link rel="icon" href="/favicon-16.png" type="image/png" sizes="16x16">
+    <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32">
+    <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48">
+    <link rel="stylesheet" href="/wokthisway/css/style.css">
+    {% if page.jsonld %}
+    <script type="application/ld+json">
+    {{ page.jsonld | jsonify }}
+    </script>
+    {% endif %}
+</head>
+<body>
+    <header>
+        <h1>Wok This Way</h1>
+        <p class="subtitle">Keto Asian recipes — low-carb ramen, dumplings & weeknight meals.</p>
+        <nav class="main-nav" aria-label="Primary navigation">
+            <button class="menu-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="primary-nav">
+                <span class="menu-bar"></span>
+                <span class="menu-bar"></span>
+                <span class="menu-bar"></span>
+            </button>
+            <ul id="primary-nav" class="nav-list">
+                <li><a href="/wokthisway/">The Book</a></li>
+                <li><a href="/wokthisway/recipes/">Recipes</a></li>
+                <li><a href="/wokthisway/recommended-products/">Recommended Products</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        {{ content }}
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p class="footer-email"><a href="mailto:{{ site.email }}">{{ site.author }}</a> © {{ 'now' | date: '%Y' }} Wok This Way. All Rights Reserved.</p>
+        </div>
+        {% if page.disclosure %}
+        <p class="disclosure">{{ page.disclosure }}</p>
+        {% endif %}
+    </footer>
+
+    <script src="/wokthisway/js/nav.js"></script>
+</body>
+</html>

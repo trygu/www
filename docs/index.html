@@ -14,11 +14,26 @@
     canvas {
       display: block;
     }
+    .site-link {
+      position: fixed;
+      top: 12px;
+      right: 16px;
+      z-index: 10;
+      color: rgba(255, 255, 255, 0.55);
+      font: 14px/1 system-ui, sans-serif;
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .site-link:hover,
+    .site-link:focus {
+      color: #fff;
+    }
   </style>
 </head>
-<body>
-  <canvas id="scene"></canvas>
-  <script>
+  <body>
+    <a href="/wokthisway/" class="site-link">Wok This Way →</a>
+    <canvas id="scene"></canvas>
+    <script>
     const canvas = document.getElementById('scene');
     const ctx = canvas.getContext('2d');
     let w, h;
@@ -120,15 +135,11 @@
 
     let currentWave = 1;
     let attackDelay = computeAttackDelay(currentWave);
-    let maxSimultaneousAttackers = computeMaxAttackers(currentWave);
+    let maxSimultaneousAttackers = computeMaxSimultaneousAttackers(currentWave);
     let activeAttackers = 0;
 
     function computeAttackDelay(wave) {
       return Math.max(2000 - wave * 100, 500);
-    }
-
-    function computeMaxAttackers(wave) {
-      return Math.min(1 + Math.floor(wave / 3), 3);
     }
 
     function computeEnemySpeed(wave) {
@@ -463,27 +474,22 @@
       generateParticles();
     }
 
-    function startNextWave() {
-      currentWave++;
-      attackDelay = computeAttackDelay(currentWave);
-      maxSimultaneousAttackers = computeMaxSimultaneousAttackers(currentWave);
-      flagshipCooldown = 0;
-      flyInEnemies();
-    }
-
     function checkAllEnemiesShot() {
-      if (enemyGrid.length === 0) {
-        setTimeout(() => {
-          currentWave++;
-          attackDelay = computeAttackDelay(currentWave);
-          maxSimultaneousAttackers = computeMaxAttackers(currentWave);
-          flyInEnemies(); // Spawn a new wave of enemies
-        }, 1000); // Wait 1 second before the next wave
-      }
+      if (!waveFullySpawned || enemyGrid.length !== 0 || waveTransitionPending) return;
+      waveTransitionPending = true;
+      setTimeout(() => {
+        waveTransitionPending = false;
+        currentWave++;
+        attackDelay = computeAttackDelay(currentWave);
+        maxSimultaneousAttackers = computeMaxSimultaneousAttackers(currentWave);
+        flyInEnemies();
+      }, 1000);
     }
 
     let gameStarted = false;
     let enemiesInitialized = false;
+    let waveTransitionPending = false;
+    let waveFullySpawned = false;
 
     function startGame() {
       if (gameStarted) return;
@@ -496,8 +502,6 @@
     }
 
     function flyInEnemies() {
-      if (enemiesInitialized) return;
-      enemiesInitialized = true;
       enemyGrid.length = 0;
       formation = [];
       const usedPositions = new Set();
@@ -511,6 +515,7 @@
       [3, 6].forEach(col => formation.push({ type: 'flagship', x: startX + col * spacing, y: 36, dead: false }));
 
       // Spawn enemies with a delay
+      waveFullySpawned = false;
       formation.forEach((enemy, i) => {
         if (enemy.dead) return;
         const key = `${enemy.x},${enemy.y}`;
@@ -534,23 +539,13 @@
               wasAttacking: false
             });
           }
+          if (i === formation.length - 1) waveFullySpawned = true;
         }, i * 80);
       });
 
       setTimeout(() => { enemiesCanAttack = true; }, 2500);
     }
 
-    window.addEventListener('resize', resize);
-
-    let flagshipCooldown = 0;
-    const maxFlagshipAttacksPerWave = 3;
-
-    const MAX_SIMULTANEOUS_ATTACKERS = 2;
-    const ATTACK_PROBABILITY = {
-      red: 0.02,
-      purple: 0.008,
-      blue: 0.003
-    };
     const FLAGSHIP_ATTACK_PROBABILITY = 0.02;
 
     function computeAttackProbability(wave) {
@@ -660,8 +655,6 @@
       }
     });
 
-    window.addEventListener('resize', resize);
-
     const MAX_ENEMY_BULLETS = 3;
     const ENEMY_SHOOT_PROBABILITY = 0.01;
     const enemyBullets = [];
@@ -734,8 +727,6 @@
         }
       }
     }
-
-    window.addEventListener('resize', resize);
 
     function initialize() {
       resize();
