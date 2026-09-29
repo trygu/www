@@ -17,8 +17,5 @@ permalink: /sitemap.xml
     <loc>https://falch.me{{ recipe.url }}</loc>
     {% if recipe.date %}<lastmod>{{ recipe.date | date: "%Y-%m-%d" }}</lastmod>{% endif %}
   </url>
-  {% endfor %}
-  <url>
-    <loc>https://falch.me/wokthisway/recommended-products/</loc>
-  </url>
+   {% endfor %}
 </urlset>

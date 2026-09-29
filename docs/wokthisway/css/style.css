@@ -393,35 +393,6 @@ footer {
 .container--wide {
     max-width: 980px;
 }
-
-/* Shop grid: use column layout to avoid large vertical gaps (masonry-like flow) */
-.shop-grid {
-    columns: 1;
-    column-gap: var(--gap-lg);
-}
-
-/* Keep each section intact inside columns */
-.shop-grid .content-section {
-    display: inline-block;
-    width: 100%;
-    margin-top: 0;
-    margin-bottom: var(--gap-md);
-    -webkit-column-break-inside: avoid;
-    break-inside: avoid-column;
-}
-
-@media (min-width: 700px) {
-    .shop-grid {
-        columns: 2;
-    }
-}
-
-.disclosure {
-    text-align: center;
-    font-size: 0.9rem;
-    color: #777;
-    margin-top: 12px;
-}
 @media (max-width: 700px) {
     .book-image-wrapper {
         max-width: 90vw;

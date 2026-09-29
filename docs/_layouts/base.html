@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% if page.title %}{{ page.title }} – Wok This Way{% else %}{{ site.title }} – {{ site.description }}{% endif %}</title>
     <meta name="description" content="{% if page.description %}{{ page.description }}{% else %}{{ site.description }}{% endif %}">
+    <link rel="canonical" href="{% if page.canonical %}{{ page.canonical }}{% else %}{{ site.url }}{{ page.url | remove: 'index.html' }}{% endif %}">
     <meta property="og:type" content="{% if page.title %}article{% else %}website{% endif %}">
     <meta property="og:site_name" content="Wok This Way">
     <meta property="og:title" content="{% if page.title %}{{ page.title }} – Wok This Way{% else %}{{ site.title }} – {{ site.description }}{% endif %}">
@@ -34,7 +35,6 @@
             <ul id="primary-nav" class="nav-list">
                 <li><a href="/wokthisway/">The Book</a></li>
                 <li><a href="/wokthisway/recipes/">Recipes</a></li>
-                <li><a href="/wokthisway/recommended-products/">Recommended Products</a></li>
             </ul>
         </nav>
     </header>
@@ -47,9 +47,6 @@
         <div class="footer-content">
             <p class="footer-email"><a href="mailto:{{ site.email }}">{{ site.author }}</a> © {{ 'now' | date: '%Y' }} Wok This Way. All Rights Reserved.</p>
         </div>
-        {% if page.disclosure %}
-        <p class="disclosure">{{ page.disclosure }}</p>
-        {% endif %}
     </footer>
 
     <script src="/wokthisway/js/nav.js"></script>
