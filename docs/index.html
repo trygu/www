@@ -1,19 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>falch.me - Galaxian</title>
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      background: black;
-      overflow: hidden;
-      height: 100%;
-    }
-    canvas {
-      display: block;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>falch.me - Galaxian</title>
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        background: black;
+        overflow: hidden;
+        height: 100%;
+        touch-action: none;
+        -webkit-user-select: none;
+        user-select: none;
+        -webkit-touch-callout: none;
+      }
+      canvas {
+        display: block;
+      }
+      #hint {
+        position: fixed;
+        bottom: 28px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 10;
+        color: rgba(255, 255, 255, 0.65);
+        font: 14px/1.4 system-ui, sans-serif;
+        text-align: center;
+        white-space: nowrap;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.4s;
+      }
+      #hint.show {
+        opacity: 1;
+      }
     .site-link {
       position: fixed;
       top: 12px;
@@ -33,6 +55,7 @@
   <body>
     <a href="/wokthisway/" class="site-link">Wok This Way →</a>
     <canvas id="scene"></canvas>
+    <div id="hint"></div>
     <script>
     const canvas = document.getElementById('scene');
     const ctx = canvas.getContext('2d');
@@ -398,8 +421,10 @@
     }
 
     function updatePlayer() {
-      if (keys['ArrowLeft']) player.x -= player.speed;
-      if (keys['ArrowRight']) player.x += player.speed;
+      const left = keys['ArrowLeft'] || keys['KeyA'] || (touchActive && touchTargetX < player.x + player.width / 2);
+      const right = keys['ArrowRight'] || keys['KeyD'] || (touchActive && touchTargetX > player.x + player.width / 2);
+      if (left) player.x -= player.speed;
+      if (right) player.x += player.speed;
       player.x = Math.max(0, Math.min(player.x, w - player.width));
     }
 
@@ -647,13 +672,56 @@
       activeAttackers++;
     }
 
+    function fireBullet() {
+      if (bullets.length === 0 && player.state === 'alive') {
+        bullets.push({ x: player.x + player.width / 2 - 2, y: player.y - 10, speed: 5, fired: true });
+      }
+    }
+
     window.addEventListener('keydown', e => keys[e.code] = true);
     window.addEventListener('keyup', e => {
       keys[e.code] = false;
-      if (e.code === 'Space' && bullets.length === 0 && player.state === 'alive') {
-        bullets.push({ x: player.x + player.width / 2 - 2, y: player.y - 10, speed: 5, fired: true });
-      }
+      if (e.code === 'Space') fireBullet();
     });
+
+    let touchActive = false;
+    let touchTargetX = w / 2;
+    let touchFiring = false;
+
+    canvas.addEventListener('pointerdown', e => {
+      e.preventDefault();
+      touchActive = true;
+      touchTargetX = e.clientX;
+      touchFiring = true;
+      fireBullet();
+    });
+    canvas.addEventListener('pointermove', e => {
+      if (!touchActive) return;
+      e.preventDefault();
+      touchTargetX = e.clientX;
+      if (touchFiring) fireBullet();
+    });
+    ['pointerup', 'pointercancel', 'pointerleave'].forEach(type =>
+      canvas.addEventListener(type, e => {
+        e.preventDefault();
+        touchActive = false;
+        touchFiring = false;
+      })
+    );
+    canvas.addEventListener('touchstart', e => e.preventDefault(), { passive: false });
+    canvas.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
+
+    const hint = document.getElementById('hint');
+    function showHint() {
+      if (!hint) return;
+      const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+      hint.textContent = isTouch
+        ? 'Drag to move · hold to fire'
+        : '← → move · Space to fire';
+      hint.classList.add('show');
+      setTimeout(() => hint.classList.remove('show'), 4000);
+    }
+    window.addEventListener('load', showHint);
 
     const MAX_ENEMY_BULLETS = 3;
     const ENEMY_SHOOT_PROBABILITY = 0.01;
@@ -727,6 +795,8 @@
         }
       }
     }
+
+    window.addEventListener('resize', resize);
 
     function initialize() {
       resize();
