@@ -62,4 +62,4 @@ This bowl brings together everything I crave on an OMAD day: heat, creaminess, t
 5. Add the noodles and toss to coat evenly.
 6. Plate in a wide bowl. Top with a raw egg yolk, sliced scallions, sesame seeds, and a drizzle of chili oil.
 
-<p class="no-rice"><strong>Tip:</strong> Add a dash of soy sauce, toban djan or a bit more gochugaru for extra umami and heat if needed.</p>
+<p class="recipe-tip"><strong>Tip:</strong> Add a dash of soy sauce, toban djan or a bit more gochugaru for extra umami and heat if needed.</p>

@@ -11,12 +11,12 @@ description: Keto-friendly Asian recipes from Wok This Way — low-carb ramen, d
     <ul class="recipe-grid">
         {% for recipe in site.recipes %}
         <li>
-            <a href="{{ recipe.url }}">
-                <div class="polaroid">
+            <a class="recipe-card" href="{{ recipe.url }}">
+                <div class="recipe-card__img">
                     <img src="{{ recipe.image }}" alt="{{ recipe.title }}" loading="lazy">
-                    <div class="caption">{{ recipe.caption }}</div>
                 </div>
-                <h3>{{ recipe.title }}</h3>
+                <h3 class="recipe-card__title">{{ recipe.title }}</h3>
+                <p class="recipe-card__caption">{{ recipe.caption }}</p>
             </a>
         </li>
         {% endfor %}

@@ -16,31 +16,30 @@ jsonld:
 ---
 
 <section class="container book-section">
-    <div class="book-flex">
-        <div class="book-image-wrapper">
-            <a href="{{ site.amazon }}" target="_blank" rel="noopener" aria-label="Buy Wok This Way on Amazon">
-                <img src="/images/wokthisway.jpeg" alt="Wok This Way – Keto Asian Cookbook cover" class="book-cover" loading="lazy">
-            </a>
-        </div>
-        <article class="book-info">
-            <h2 class="book-title">About the Book</h2>
-            <div class="book-description">
-                <p><strong>Wok This Way</strong> delivers flavor-forward, keto-friendly recipes inspired by East Asian kitchens—brothy ramens, hotpots, dumplings, and umami-rich sauces. Practical swaps and clear techniques make low-carb cooking approachable for everyday life.</p>
-                <ul>
-                    <li>Brothy and dry-style keto ramen</li>
-                    <li>Dumplings using napa or pak choi wrappers</li>
-                    <li>Sauces and sides that boost flavor</li>
-                    <li>Smart swaps that keep carbs low</li>
-                    <li>Practical guidance for keto and intermittent fasting</li>
-                </ul>
-                <p class="no-rice">No rice. No guilt. Just good food.</p>
-            </div>
-            <div class="amazon-link-wrapper">
-                <a href="{{ site.amazon }}" target="_blank" rel="noopener" class="amazon-link">
-                    Buy on Amazon
-                </a>
-            </div>
-        </article>
+    <p class="eyebrow">A Keto Journey Through Asia</p>
+    <h2 class="book-title">Wok This Way</h2>
+    <p class="book-lede">Flavor-forward, keto-friendly recipes inspired by East Asian kitchens — brothy ramens, hotpots, dumplings, and umami-rich sauces. Practical swaps and clear techniques that make low-carb cooking approachable for everyday life.</p>
+
+    <div class="book-cover-hero">
+        <a href="{{ site.amazon }}" target="_blank" rel="noopener" aria-label="Buy Wok This Way on Amazon">
+            <img src="/images/wokthisway.jpeg" alt="Wok This Way – Keto Asian Cookbook cover" class="book-cover" loading="eager">
+        </a>
+    </div>
+
+    <ul class="book-features">
+        <li>Brothy and dry-style keto ramen</li>
+        <li>Dumplings with napa or pak choi wrappers</li>
+        <li>Sauces and sides that boost flavor</li>
+        <li>Smart swaps that keep carbs low</li>
+        <li>Practical guidance for keto &amp; intermittent fasting</li>
+    </ul>
+
+    <p class="pull-quote">No rice. No guilt. Just good food.</p>
+
+    <div class="amazon-link-wrapper">
+        <a href="{{ site.amazon }}" target="_blank" rel="noopener" class="amazon-link">
+            Buy on Amazon
+        </a>
     </div>
 </section>
 
@@ -51,12 +50,12 @@ jsonld:
     <ul class="recipe-grid">
         {% for recipe in site.recipes %}
         <li>
-            <a href="{{ recipe.url }}">
-                <div class="polaroid">
+            <a class="recipe-card" href="{{ recipe.url }}">
+                <div class="recipe-card__img">
                     <img src="{{ recipe.image }}" alt="{{ recipe.title }}" loading="lazy">
-                    <div class="caption">{{ recipe.caption }}</div>
                 </div>
-                <h3>{{ recipe.title }}</h3>
+                <h3 class="recipe-card__title">{{ recipe.title }}</h3>
+                <p class="recipe-card__caption">{{ recipe.caption }}</p>
             </a>
         </li>
         {% endfor %}
