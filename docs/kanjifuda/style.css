@@ -40,7 +40,6 @@ p, li { max-width: 68ch; }
 .lede { font-size: 1.2rem; }
 .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(150px, 240px); align-items: center; gap: clamp(1.5rem, 5vw, 4rem); }
 .hero img { display: block; width: 100%; height: auto; border: 2px solid var(--ink); box-shadow: 10px 12px 0 #d8cbb5; }
-.note { border-left: 3px solid var(--red); padding: .15rem 1.2rem; background: var(--sheet); }
 .policy { max-width: 740px; }
 .policy h2 { border-top: 1px solid var(--rule); padding-top: 1.25rem; }
 .site-footer { border-top: 1px solid var(--rule); border-bottom: 0; color: var(--muted); font: .83rem/1.5 system-ui, sans-serif; padding-bottom: 2rem; }
