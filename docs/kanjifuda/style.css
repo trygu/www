@@ -1,0 +1,50 @@
+:root {
+  color-scheme: light;
+  --paper: #f4efe6;
+  --sheet: #fbf8f1;
+  --ink: #24231e;
+  --muted: #57534c;
+  --rule: #b7a995;
+  --red: #a43227;
+}
+* { box-sizing: border-box; }
+html { background: var(--paper); }
+body {
+  margin: 0;
+  color: var(--ink);
+  background: radial-gradient(ellipse at 70% 4%, #fffcf4, transparent 54%), var(--paper);
+  font: 1.06rem/1.7 Georgia, "Hiragino Mincho ProN", "Yu Mincho", serif;
+}
+a { color: #75281f; text-underline-offset: .2em; }
+a:hover { color: var(--red); }
+a:focus-visible { outline: 3px solid var(--red); outline-offset: 4px; }
+.page { max-width: 920px; margin: auto; padding: 0 clamp(1rem, 4vw, 3rem); }
+.site-header, .site-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .5rem 1.5rem;
+  border-bottom: 2px solid var(--ink);
+  padding: 1.25rem 0;
+}
+.brand { display: inline-flex; align-items: center; gap: .7rem; color: var(--ink); text-decoration: none; font-size: 1.05rem; font-weight: bold; }
+.brand img { display: block; border-radius: 9px; }
+nav { display: flex; gap: 1.3rem; font-size: .95rem; }
+main { padding: clamp(2.5rem, 7vw, 5rem) 0; }
+.eyebrow { color: var(--red); text-transform: uppercase; letter-spacing: .16em; font: bold .75rem/1.5 system-ui, sans-serif; }
+h1, h2 { line-height: 1.25; letter-spacing: -.025em; }
+h1 { font-size: clamp(2.3rem, 6vw, 3.7rem); margin: .45rem 0 1.2rem; }
+h2 { font-size: 1.45rem; margin: 2.1rem 0 .5rem; }
+p, li { max-width: 68ch; }
+.lede { font-size: 1.2rem; }
+.hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(150px, 240px); align-items: center; gap: clamp(1.5rem, 5vw, 4rem); }
+.hero img { display: block; width: 100%; height: auto; border: 2px solid var(--ink); box-shadow: 10px 12px 0 #d8cbb5; }
+.note { border-left: 3px solid var(--red); padding: .15rem 1.2rem; background: var(--sheet); }
+.policy { max-width: 740px; }
+.policy h2 { border-top: 1px solid var(--rule); padding-top: 1.25rem; }
+.site-footer { border-top: 1px solid var(--rule); border-bottom: 0; color: var(--muted); font: .83rem/1.5 system-ui, sans-serif; padding-bottom: 2rem; }
+@media (max-width: 580px) {
+  .hero { grid-template-columns: 1fr; }
+  .hero img { max-width: 200px; }
+}

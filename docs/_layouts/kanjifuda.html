@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>{{ page.title | escape }} · Kanji Hanafuda</title>
+  <meta name="description" content="{{ page.description | escape }}">
+  <link rel="canonical" href="{{ site.url }}{{ page.url }}">
+  <link rel="icon" href="/kanjifuda/favicon.ico" sizes="any">
+  <link rel="icon" href="/kanjifuda/app-icon.png" type="image/png">
+  <link rel="apple-touch-icon" href="/kanjifuda/app-icon.png">
+  <link rel="stylesheet" href="/kanjifuda/style.css">
+</head>
+<body>
+  <div class="page">
+    <header class="site-header">
+      <a class="brand" href="/kanjifuda/" aria-label="Kanji Hanafuda home"><img src="/kanjifuda/app-icon.png" width="40" height="40" alt=""><span>Kanji Hanafuda</span></a>
+      <nav aria-label="Kanji Hanafuda">
+        <a href="/kanjifuda/">Home</a>
+        <a href="/kanjifuda/privacy/">Privacy</a>
+      </nav>
+    </header>
+    <main id="content">{{ content }}</main>
+    <footer class="site-footer">
+      <span>Kanji Hanafuda · Trygve Tatsuya Falch</span>
+      <a href="mailto:{{ site.email }}">Contact</a>
+    </footer>
+  </div>
+</body>
+</html>
